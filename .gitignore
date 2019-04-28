@@ -4,3 +4,4 @@ Lib/*
 LICENSE.txt
 Scripts/*
 tcl/*
+src/__pycache__
