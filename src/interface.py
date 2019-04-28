@@ -78,6 +78,29 @@ class PlayingRecord:
         return tournament
 
 
+class OtherPos:
+    allowed_fields = ['id', 'year', 'event', 'title']
+
+    def __init__(self, **kwargs):
+        self.id = None
+        self.year = None
+        self.event = None
+        self.title = None
+        self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
+
+    @property
+    def xml(self):
+        """
+        :rtype: ET.Element
+        """
+        record = ET.Element('record')
+        for field in ['year', 'event', 'title']:
+            locals()[field] = ET.SubElement(record, field)
+            locals()[field].text = str(self.__dict__[field])
+        locals()['event'].set('id', str(self.id))
+        return record
+
+
 class TdPos:
     allowed_fields = ['id', 'tournament', 'date', 'title']
 
@@ -143,6 +166,7 @@ class Player:
         self.positions = []
         self.directing = []
         self.results = []
+        self.other = []
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ':
             self.firstname = ''
@@ -167,6 +191,12 @@ class Player:
         """
         self.results.append(result)
 
+    def addOther(self, record):
+        """
+        :type record: OtherPos
+        """
+        self.other.append(record)
+
     @property
     def xml(self):
         """
@@ -190,15 +220,24 @@ class Player:
         if self.razr_temp:
             locals()['razr'].set('temp', '1')
 
-        results = ET.SubElement(player_record, 'results')
-        for rec in self.results:
-            results.append(rec.xml)
+        if self.results:
+            results = ET.SubElement(player_record, 'results')
+            for rec in self.results:
+                results.append(rec.xml)
 
-        admin = ET.SubElement(player_record, 'administrative')
-        for pos in self.positions:
-            admin.append(pos.xml)
+        if self.positions:
+            admin = ET.SubElement(player_record, 'administrative')
+            for pos in self.positions:
+                admin.append(pos.xml)
 
-        directing = ET.SubElement(player_record, 'directing')
-        for pos in self.directing:
-            directing.append(pos.xml)
+        if self.directing:
+            directing = ET.SubElement(player_record, 'directing')
+            for pos in self.directing:
+                directing.append(pos.xml)
+
+        if self.other:
+            other = ET.SubElement(player_record, 'other')
+            for pos in self.other:
+                other.append(pos.xml)
+
         return player_record

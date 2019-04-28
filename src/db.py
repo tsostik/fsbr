@@ -33,6 +33,10 @@ class BaseIFace:
         "left join results_ses on tourn_id = main_tourn_id and results.player_id = results_ses.player_id " \
         "where type in (1, 2, 3) and results.player_id = {0};"
 
+    select_other = \
+        "select events.event_id as id, event_name as event, year(event_date) as year, position as title " \
+        "from events_part left join events using (event_id) where player_id = {0};"
+
     def __init__(self):
         self.conn = None
 
@@ -107,6 +111,13 @@ class BaseIFace:
             cursor.execute(sql)
             for pos in cursor.fetchall():
                 pl.addDirecting(TdPos(**pos))
+
+    def loadOtherRecords(self, pl):
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = self.select_other.format(pl.id)
+            cursor.execute(sql)
+            for pos in cursor.fetchall():
+                pl.addOther(OtherPos(**pos))
 
     def loadPlayingRecords(self, pl):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
