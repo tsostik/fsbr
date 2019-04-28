@@ -34,9 +34,9 @@ class PlayingRecord:
             result = True
         elif (self.champ_t == 32 or self.champ_t == 33) and self.placeh <= 10:  # ПЧР или ПЧР-ИМП, места 1-10
             result = True
-        elif (self.champ_t >= 40 and self.champ_t < 100) and self.type == 2 and self.placeh <= 10:  # Парный чемпионат Европы или Мира, места 1-10
+        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:  # Парный чемпионат Европы или Мира, места 1-10
             result = True
-        elif (self.champ_t >= 40 and self.champ_t < 100) and self.type == 3 and self.placeh <= 8:  # Командный чемпионат Европы или Мира, места 1-10
+        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:  # Командный чемпионат Европы или Мира, места 1-10
             result = True
         return result
 
@@ -50,9 +50,14 @@ class PlayingRecord:
         if self.achievement:
             tournament.set('achievement', '1')
 
-        for field in ['id', 'year', 'name', 'pb', 'ro', 'mb']:
+        for field in ['id', 'year', 'name']:
             locals()[field] = ET.SubElement(tournament, field)
             locals()[field].text = str(self.__dict__[field])
+        for field in ['pb', 'ro', 'mb']:
+            if self.__dict__[field]:
+                locals()[field] = ET.SubElement(tournament, field)
+                locals()[field].text = str(self.__dict__[field])
+
         place_str = str(self.placeh) if self.placeh == self.placel else str(self.placeh) + ' - ' + str(self.placel)
         place = ET.SubElement(tournament, 'place')
         place.text = place_str
@@ -135,6 +140,8 @@ class Player:
         self.directing = []
         self.results = []
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
+        if self.firstname == 'Щ': self.firstname = ''
+        if self.fathername == 'Щ': self.fathername = ''
 
     def addPosition(self, position):
         """

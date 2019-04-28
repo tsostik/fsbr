@@ -62,6 +62,17 @@ class BaseIFace:
             result /= 2
         return result, is_tmp
 
+    @staticmethod
+    def shortPlayerName(lastname, firstname, fathername):
+        result = lastname + ' '
+        if firstname != '' and firstname != 'Щ':
+            result += firstname[0]
+        result += '.'
+        if fathername != '' and fathername != 'Щ':
+            result += fathername[0]
+        result += '.'
+        return result
+
     def loadPlayerData(self, plid):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = self.select_player.format("player_id = {0}".format(plid))
@@ -99,15 +110,30 @@ class BaseIFace:
 
     def loadPlayingRecords(self, pl):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            # Для ускорения последующей работы заранее загрузим данные о командах и партнерах
+            # Парные турниры
+            sql = \
+                "select tour_id, firstname, lastname, surname " \
+                "from (select tour_id, if(player1={0}, player2, player1) as player_id " \
+                "from tourn_pair " \
+                "where {0} in (player1, player2) ) as s_partner "\
+                "left join players using(player_id);".format(pl.id)
+            cursor.execute(sql)
+            pair_parts = {}
+            for rec in cursor.fetchall():
+                pair_parts[rec['tour_id']] = self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname'])
+
             sql = self.select_results.format(pl.id)
             cursor.execute(sql)
             for rec in cursor.fetchall():
+                record = rec
+                if rec['id'] in pair_parts:
+                    record['partner'] = pair_parts[rec['id']]
                 pl.addResult(PlayingRecord(**rec))
 
     def loadPlayers(self):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = self.select_player.format("state in (1, 2, 4, 5)")
-
             cursor.execute(sql)
             result = []
             for record in cursor.fetchall():
