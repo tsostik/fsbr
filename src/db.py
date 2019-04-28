@@ -32,10 +32,14 @@ class BaseIFace:
         "left join tourn_header using(tourn_id)" \
         "left join results_ses on tourn_id = main_tourn_id and results.player_id = results_ses.player_id " \
         "where type in (1, 2, 3) and results.player_id = {0};"
-
     select_other = \
         "select events.event_id as id, event_name as event, year(event_date) as year, position as title " \
         "from events_part left join events using (event_id) where player_id = {0};"
+    select_tourn = "select tourn_id as id, type, name, tour_date as start, tour_date as end, city_name as city "\
+                   "from tourn_header left join cities using (city_id) "\
+                   " where tourn_id = {0};"
+    select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname "\
+                 "from tourn_ind left join players on team_id = player_id where tour_id = {0};"
 
     def __init__(self):
         self.conn = None
@@ -185,3 +189,22 @@ class BaseIFace:
                             emb=record['emb'])
                 result.append(pl)
         return result
+
+    def loadTournamentData(self, tid):
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = self.select_tourn.format(tid)
+            cursor.execute(sql)
+            record = cursor.fetchone()
+        return Tournament(**record)
+
+    def loadIndividualParticipants(self, tourn):
+        """
+        :type tourn: Tournament
+        """
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = self.select_ind.format(tourn.id)
+            cursor.execute(sql)
+            for record in cursor.fetchall():
+                record['player'] = (self.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
+                                    record['player_id'])
+                tourn.addParticipant(TournamentRecordInd(**record))

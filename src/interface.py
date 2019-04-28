@@ -241,3 +241,97 @@ class Player:
                 other.append(pos.xml)
 
         return player_record
+
+
+class TournamentRecord:
+    allowed_fields = ['placeh', 'placel', 'result', 'pb', 'ro', 'mb']
+
+    def __init__(self, **kwargs):
+        self.placeh = None
+        self.placel = None
+        self.result = None
+        self.pb = None
+        self.ro = None
+        self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
+        self.mb = None
+
+    @property
+    def place(self):
+        return str(self.placeh) if self.placeh == self.placel else "{0}-{1}".format(self.placeh, self.placel)
+
+    @property
+    def xml(self):
+        """
+        :rtype: ET.Element
+        """
+        record = ET.Element('record')
+        result = ET.SubElement(record, 'result')
+        result.text = "{0}".format(self.result, '.2f')
+
+        place = ET.SubElement(record, 'place')
+        place.text = self.place
+        for field in ['pb', 'ro', 'mb']:
+            if self.__dict__[field]:
+                locals()[field] = ET.SubElement(record, field)
+                locals()[field].text = str(self.__dict__[field])
+        return record
+
+
+class TournamentRecordInd(TournamentRecord):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.player = kwargs['player']
+
+    @property
+    def xml(self):
+        """
+        :rtype: ET.Element
+        """
+        record = super().xml
+        participant = ET.SubElement(record, 'participant')
+        player = ET.SubElement(participant, 'player')
+        player.set('id', str(self.player[1]))
+        player.text = self.player[0]
+        return record
+
+
+class Tournament:
+    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city']
+    types = {1: "Individual", 2: "Pair", 3: "Team", "4": "Session", 5: "Club", 6: "Festival"}
+
+    def __init__(self, **kwargs):
+        self.id = None
+        self.type = None
+        self.name = None
+        self.start = None
+        self.end = None
+        self.city = None
+        self.nested = []
+        self.participants = []
+        self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
+
+    def addParticipant(self, participant):
+        """
+        :type participant: TournamentRecord
+        """
+        self.participants.append(participant)
+
+    @property
+    def xml(self):
+        """
+        :rtype: ET.Element
+        """
+        tournament = ET.Element('tournament')
+        tournament.set('id', str(self.id))
+        tournament.set('type', self.types[self.type])
+
+        info = ET.SubElement(tournament, 'info')
+        for field in ['name', 'city', 'start', 'end']:
+            locals()[field] = ET.SubElement(info, field)
+            locals()[field].text = str(self.__dict__[field])
+        if self.participants:
+            participants = ET.SubElement(tournament, 'participants')
+            for part in self.participants:
+                participants.append(part.xml)
+        return tournament
