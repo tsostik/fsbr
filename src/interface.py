@@ -64,13 +64,17 @@ class PlayingRecord:
         partner = ET.SubElement(tournament, 'partner')
         if self.partner is None:
             partner.text = ""
-        elif isinstance(self.partner, str):
-            partner.text = self.partner
+        elif type(self.partner) is tuple:
+            player = ET.SubElement(partner, 'player')
+            player.text = self.partner[0]
+            player.set('id', str(self.partner[1]))
         else:
-            partner.text = self.partner[0]
+            team = ET.SubElement(partner, 'team')
+            team.text = str(self.partner[0])
             for pl in self.partner[1]:
-                player = ET.SubElement(partner, 'player')
-                player.text = pl
+                player = ET.SubElement(team, 'player')
+                player.text = pl[0]
+                player.set('id', str(pl[1]))
         return tournament
 
 
@@ -140,8 +144,10 @@ class Player:
         self.directing = []
         self.results = []
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
-        if self.firstname == 'Щ': self.firstname = ''
-        if self.fathername == 'Щ': self.fathername = ''
+        if self.firstname == 'Щ':
+            self.firstname = ''
+        if self.fathername == 'Щ':
+            self.fathername = ''
 
     def addPosition(self, position):
         """

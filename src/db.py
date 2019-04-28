@@ -18,8 +18,8 @@ class BaseIFace:
         "left join cities using (city_id) " \
         "left join ratelist on player_id=id " \
         "left join " + select_pb + "using(player_id) " \
-        "left join " + select_mb + "using(player_id)" \
-        "where {0};"
+                                   "left join " + select_mb + "using(player_id)" \
+                                                              "where {0};"
     select_admin = "select year_s as since, year_f as till, position as title, comitee as committee " \
                    "from admin_pos where player_id = {0};"
     select_directing = "select tds.tourn_id as id, tourn_header.name as tournament, " \
@@ -113,22 +113,44 @@ class BaseIFace:
             # Для ускорения последующей работы заранее загрузим данные о командах и партнерах
             # Парные турниры
             sql = \
-                "select tour_id, firstname, lastname, surname " \
+                "select tour_id, players.player_id as player_id, firstname, lastname, surname " \
                 "from (select tour_id, if(player1={0}, player2, player1) as player_id " \
                 "from tourn_pair " \
-                "where {0} in (player1, player2) ) as s_partner "\
+                "where {0} in (player1, player2) ) as s_partner " \
                 "left join players using(player_id);".format(pl.id)
             cursor.execute(sql)
-            pair_parts = {}
+            parts_pair = {}
             for rec in cursor.fetchall():
-                pair_parts[rec['tour_id']] = self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname'])
+                parts_pair[rec['tour_id']] = \
+                    (self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id'])
+
+            # Командные турниры
+            sql = \
+                "select tour_id, teams.team_id, team_name, player_id, firstname, lastname, surname " \
+                "from team_players "\
+                "left join teams using (team_id) "\
+                "left join players using (player_id) " \
+                "left join tourn_team using (team_id) " \
+                "where team_id in (select team_id from team_players where player_id = {0})".format(pl.id)
+            cursor.execute(sql)
+            parts_team = {}
+            for rec in cursor.fetchall():
+                if rec['tour_id'] in parts_team:
+                    parts_team[rec['tour_id']][1].append(
+                        (self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id']))
+                else:
+                    parts_team[rec['tour_id']] = \
+                        [rec['team_name'],
+                         [(self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id'])]]
 
             sql = self.select_results.format(pl.id)
             cursor.execute(sql)
             for rec in cursor.fetchall():
                 record = rec
-                if rec['id'] in pair_parts:
-                    record['partner'] = pair_parts[rec['id']]
+                if rec['id'] in parts_pair:
+                    record['partner'] = parts_pair[rec['id']]
+                if rec['id'] in parts_team:
+                    record['partner'] = parts_team[rec['id']]
                 pl.addResult(PlayingRecord(**rec))
 
     def loadPlayers(self):
