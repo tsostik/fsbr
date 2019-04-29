@@ -81,7 +81,7 @@ class BaseIFace:
         result += '.'
         return result
 
-    def loadPlayerData(self, plid):
+    def loadPlayerData(self, plid) -> Player:
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = self.select_player.format("player_id = {0}".format(plid))
             cursor.execute(sql)
@@ -102,28 +102,28 @@ class BaseIFace:
                         emb=record['emb'])
         return pl
 
-    def loadAdminPos(self, pl):
+    def loadAdminPos(self, pl: Player):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = self.select_admin.format(pl.id)
             cursor.execute(sql)
             for pos in cursor.fetchall():
                 pl.addPosition(AdminPos(**pos))
 
-    def loadDirecting(self, pl):
+    def loadDirecting(self, pl: Player):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = self.select_directing.format(pl.id)
             cursor.execute(sql)
             for pos in cursor.fetchall():
                 pl.addDirecting(TdPos(**pos))
 
-    def loadOtherRecords(self, pl):
+    def loadOtherRecords(self, pl: Player):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = self.select_other.format(pl.id)
             cursor.execute(sql)
             for pos in cursor.fetchall():
                 pl.addOther(OtherPos(**pos))
 
-    def loadPlayingRecords(self, pl):
+    def loadPlayingRecords(self, pl: Player):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             # Для ускорения последующей работы заранее загрузим данные о командах и партнерах
             # Парные турниры
@@ -190,17 +190,19 @@ class BaseIFace:
                 result.append(pl)
         return result
 
-    def loadTournamentData(self, tid):
+    def loadTournamentData(self, tid: int) -> Tournament:
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = self.select_tourn.format(tid)
             cursor.execute(sql)
-            record = cursor.fetchone()
-        return Tournament(**record)
+            tourn = Tournament(**cursor.fetchone())
+            # Load nested tournaments
+            sql = "select tourn_id as id, name from tourn_header where tounr_pair = {0};".format(tourn.id)
+            cursor.execute(sql)
+            for record in cursor.fetchall():
+                tourn.nested.append(Tournament(**record))
+        return tourn
 
-    def loadIndividualParticipants(self, tourn):
-        """
-        :type tourn: Tournament
-        """
+    def loadIndividualParticipants(self, tourn: Tournament):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = self.select_ind.format(tourn.id)
             cursor.execute(sql)

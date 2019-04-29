@@ -1,4 +1,4 @@
-import lxml.etree as ET
+import lxml.etree as et
 
 
 class PlayingRecord:
@@ -45,34 +45,34 @@ class PlayingRecord:
         """
         :rtype: ET.Element
         """
-        tournament = ET.Element('tournament')
+        tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
         if self.achievement:
             tournament.set('achievement', '1')
 
         for field in ['id', 'year', 'name']:
-            locals()[field] = ET.SubElement(tournament, field)
+            locals()[field] = et.SubElement(tournament, field)
             locals()[field].text = str(self.__dict__[field])
         for field in ['pb', 'ro', 'mb']:
             if self.__dict__[field]:
-                locals()[field] = ET.SubElement(tournament, field)
+                locals()[field] = et.SubElement(tournament, field)
                 locals()[field].text = str(self.__dict__[field])
 
         place_str = str(self.placeh) if self.placeh == self.placel else str(self.placeh) + ' - ' + str(self.placel)
-        place = ET.SubElement(tournament, 'place')
+        place = et.SubElement(tournament, 'place')
         place.text = place_str
-        partner = ET.SubElement(tournament, 'partner')
+        partner = et.SubElement(tournament, 'partner')
         if self.partner is None:
             partner.text = ""
         elif type(self.partner) is tuple:
-            player = ET.SubElement(partner, 'player')
+            player = et.SubElement(partner, 'player')
             player.text = self.partner[0]
             player.set('id', str(self.partner[1]))
         else:
-            team = ET.SubElement(partner, 'team')
+            team = et.SubElement(partner, 'team')
             team.text = str(self.partner[0])
             for pl in self.partner[1]:
-                player = ET.SubElement(team, 'player')
+                player = et.SubElement(team, 'player')
                 player.text = pl[0]
                 player.set('id', str(pl[1]))
         return tournament
@@ -93,9 +93,9 @@ class OtherPos:
         """
         :rtype: ET.Element
         """
-        record = ET.Element('record')
+        record = et.Element('record')
         for field in ['year', 'event', 'title']:
-            locals()[field] = ET.SubElement(record, field)
+            locals()[field] = et.SubElement(record, field)
             locals()[field].text = str(self.__dict__[field])
         locals()['event'].set('id', str(self.id))
         return record
@@ -116,9 +116,9 @@ class TdPos:
         """
         :rtype: ET.Element
         """
-        position = ET.Element('position')
+        position = et.Element('position')
         for field in ['tournament', 'date', 'title']:
-            locals()[field] = ET.SubElement(position, field)
+            locals()[field] = et.SubElement(position, field)
             locals()[field].text = str(self.__dict__[field])
         locals()['tournament'].set('id', str(self.id))
         return position
@@ -139,10 +139,10 @@ class AdminPos:
         """
         :rtype: ET.Element
         """
-        position = ET.Element('position')
+        position = et.Element('position')
         for field in self.allowed_fields:
             if self.__dict__[field] is not None and self.__dict__[field] != 0 and self.__dict__[field] != "":
-                locals()[field] = ET.SubElement(position, field)
+                locals()[field] = et.SubElement(position, field)
                 locals()[field].text = str(self.__dict__[field])
         return position
 
@@ -202,41 +202,41 @@ class Player:
         """
         :rtype: ET.Element
         """
-        player_record = ET.Element('player')
+        player_record = et.Element('player')
         player_record.set('id', str(self.id))
 
-        info = ET.SubElement(player_record, 'info')
+        info = et.SubElement(player_record, 'info')
         for field in ['lastname', 'firstname', 'fathername', 'city', 'mail']:
-            locals()[field] = ET.SubElement(info, field)
+            locals()[field] = et.SubElement(info, field)
             locals()[field].text = self.__dict__[field]
         if hasattr(self.birthdate, "strftime"):
-            birthdate = ET.SubElement(info, 'birthdate')
+            birthdate = et.SubElement(info, 'birthdate')
             birthdate.text = self.birthdate.strftime("%Y-%m-%d")
 
-        sportlevel = ET.SubElement(player_record, 'sportlevel')
+        sportlevel = et.SubElement(player_record, 'sportlevel')
         for field in ['razr', 'pb', 'rate', 'mb']:
-            locals()[field] = ET.SubElement(sportlevel, field)
+            locals()[field] = et.SubElement(sportlevel, field)
             locals()[field].text = str(self.__dict__[field])
         if self.razr_temp:
             locals()['razr'].set('temp', '1')
 
         if self.results:
-            results = ET.SubElement(player_record, 'results')
+            results = et.SubElement(player_record, 'results')
             for rec in self.results:
                 results.append(rec.xml)
 
         if self.positions:
-            admin = ET.SubElement(player_record, 'administrative')
+            admin = et.SubElement(player_record, 'administrative')
             for pos in self.positions:
                 admin.append(pos.xml)
 
         if self.directing:
-            directing = ET.SubElement(player_record, 'directing')
+            directing = et.SubElement(player_record, 'directing')
             for pos in self.directing:
                 directing.append(pos.xml)
 
         if self.other:
-            other = ET.SubElement(player_record, 'other')
+            other = et.SubElement(player_record, 'other')
             for pos in self.other:
                 other.append(pos.xml)
 
@@ -264,15 +264,15 @@ class TournamentRecord:
         """
         :rtype: ET.Element
         """
-        record = ET.Element('record')
-        result = ET.SubElement(record, 'result')
+        record = et.Element('record')
+        result = et.SubElement(record, 'result')
         result.text = "{0}".format(self.result, '.2f')
 
-        place = ET.SubElement(record, 'place')
+        place = et.SubElement(record, 'place')
         place.text = self.place
         for field in ['pb', 'ro', 'mb']:
             if self.__dict__[field]:
-                locals()[field] = ET.SubElement(record, field)
+                locals()[field] = et.SubElement(record, field)
                 locals()[field].text = str(self.__dict__[field])
         return record
 
@@ -289,8 +289,8 @@ class TournamentRecordInd(TournamentRecord):
         :rtype: ET.Element
         """
         record = super().xml
-        participant = ET.SubElement(record, 'participant')
-        player = ET.SubElement(participant, 'player')
+        participant = et.SubElement(record, 'participant')
+        player = et.SubElement(participant, 'player')
         player.set('id', str(self.player[1]))
         player.text = self.player[0]
         return record
@@ -311,27 +311,26 @@ class Tournament:
         self.participants = []
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
-    def addParticipant(self, participant):
-        """
-        :type participant: TournamentRecord
-        """
+    def addParticipant(self, participant: TournamentRecord):
         self.participants.append(participant)
 
     @property
-    def xml(self):
-        """
-        :rtype: ET.Element
-        """
-        tournament = ET.Element('tournament')
+    def xml(self)->et.Element:
+        tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
         tournament.set('type', self.types[self.type])
-
-        info = ET.SubElement(tournament, 'info')
+        if self.nested:
+            nested = et.SubElement(tournament, 'nested')
+            for child in self.nested:
+                nested_tournament = et.SubElement(nested, 'tournament')
+                nested_tournament.set('id', str(child.id))
+                nested_tournament.text = str(child.name)
+        info = et.SubElement(tournament, 'info')
         for field in ['name', 'city', 'start', 'end']:
-            locals()[field] = ET.SubElement(info, field)
+            locals()[field] = et.SubElement(info, field)
             locals()[field].text = str(self.__dict__[field])
         if self.participants:
-            participants = ET.SubElement(tournament, 'participants')
+            participants = et.SubElement(tournament, 'participants')
             for part in self.participants:
                 participants.append(part.xml)
         return tournament
