@@ -40,6 +40,14 @@ class BaseIFace:
                    " where tourn_id = {0};"
     select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname "\
                  "from tourn_ind left join players on team_id = player_id where tour_id = {0};"
+    select_pair = \
+        "select placeh, placel, pb, ro, mb, result, " \
+        "p1.player_id as id1, p1.firstname as first1, p1.lastname as last1, p1.surname as sur1, "\
+        "p2.player_id as id2, p2.firstname as first2, p2.lastname as last2, p2.surname as sur2 "\
+        "from tourn_pair " \
+        "left join players as p1 on player1 = p1.player_id " \
+        "left join players as p2 on player2 = p2.player_id " \
+        "where tour_id = {0};"
 
     def __init__(self):
         self.conn = None
@@ -210,3 +218,14 @@ class BaseIFace:
                 record['player'] = (self.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
                                     record['player_id'])
                 tourn.addParticipant(TournamentRecordInd(**record))
+
+    def loadPairParticipants(self, tourn: Tournament):
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = self.select_pair.format(tourn.id)
+            cursor.execute(sql)
+            for record in cursor.fetchall():
+                record['player1'] = (self.shortPlayerName(record['first1'], record['last1'], record['sur1']),
+                                    record['id1'])
+                record['player2'] = (self.shortPlayerName(record['first2'], record['last2'], record['sur2']),
+                                    record['id2'])
+                tourn.addParticipant(TournamentRecordPair(**record))

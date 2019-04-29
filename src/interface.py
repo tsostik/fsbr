@@ -41,10 +41,7 @@ class PlayingRecord:
         return result
 
     @property
-    def xml(self):
-        """
-        :rtype: ET.Element
-        """
+    def xml(self)->et.Element:
         tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
         if self.achievement:
@@ -89,10 +86,7 @@ class OtherPos:
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
-    def xml(self):
-        """
-        :rtype: ET.Element
-        """
+    def xml(self)->et.Element:
         record = et.Element('record')
         for field in ['year', 'event', 'title']:
             locals()[field] = et.SubElement(record, field)
@@ -112,10 +106,7 @@ class TdPos:
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
-    def xml(self):
-        """
-        :rtype: ET.Element
-        """
+    def xml(self)->et.Element:
         position = et.Element('position')
         for field in ['tournament', 'date', 'title']:
             locals()[field] = et.SubElement(position, field)
@@ -135,10 +126,7 @@ class AdminPos:
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
-    def xml(self):
-        """
-        :rtype: ET.Element
-        """
+    def xml(self)->et.Element:
         position = et.Element('position')
         for field in self.allowed_fields:
             if self.__dict__[field] is not None and self.__dict__[field] != 0 and self.__dict__[field] != "":
@@ -198,10 +186,7 @@ class Player:
         self.other.append(record)
 
     @property
-    def xml(self):
-        """
-        :rtype: ET.Element
-        """
+    def xml(self)->et.Element:
         player_record = et.Element('player')
         player_record.set('id', str(self.id))
 
@@ -252,18 +237,15 @@ class TournamentRecord:
         self.result = None
         self.pb = None
         self.ro = None
-        self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         self.mb = None
+        self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
     def place(self):
         return str(self.placeh) if self.placeh == self.placel else "{0}-{1}".format(self.placeh, self.placel)
 
     @property
-    def xml(self):
-        """
-        :rtype: ET.Element
-        """
+    def xml(self)->et.Element:
         record = et.Element('record')
         result = et.SubElement(record, 'result')
         result.text = "{0}".format(self.result, '.2f')
@@ -284,16 +266,33 @@ class TournamentRecordInd(TournamentRecord):
         self.player = kwargs['player']
 
     @property
-    def xml(self):
-        """
-        :rtype: ET.Element
-        """
-        record = super().xml
-        participant = et.SubElement(record, 'participant')
+    def xml(self)->et.Element:
+        result = super().xml
+        participant = et.SubElement(result, 'participant')
         player = et.SubElement(participant, 'player')
         player.set('id', str(self.player[1]))
         player.text = self.player[0]
-        return record
+        return result
+
+
+class TournamentRecordPair(TournamentRecord):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.player1 = kwargs['player1']
+        self.player2 = kwargs['player2']
+
+    @property
+    def xml(self)->et.Element:
+        result = super().xml
+        participant = et.SubElement(result, 'participant')
+        player1 = et.SubElement(participant, 'player')
+        player1.set('id', str(self.player1[1]))
+        player1.text = self.player1[0]
+        player2 = et.SubElement(participant, 'player')
+        player2.set('id', str(self.player2[1]))
+        player2.text = self.player2[0]
+        return result
 
 
 class Tournament:
