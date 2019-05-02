@@ -56,6 +56,12 @@ class BaseIFace:
         "left join tourn_team using(team_id) "\
         "left join players using (player_id) " \
         "where team_id in (select team_id from tourn_team where tour_id = {0});"
+    select_teams_nq = \
+        "select teams.team_id as tid, team_name, players.player_id as plid, firstname, lastname, surname " \
+        "from team_players_nonqual " \
+        "left join teams using (team_id) " \
+        "left join players using (player_id) " \
+        "where team_id in (select team_id from tourn_team where tour_id = {0});"
 
     def __init__(self):
         self.conn = None
@@ -251,7 +257,6 @@ class BaseIFace:
                     tourn.addParticipant(TournamentRecordPair(**record))
 
     def loadTeamParticinatnts(self, tourn: Tournament):
-        # TODO: Add non-qualified players
         if tourn.id:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
                 sql = self.select_teams.format(tourn.id)
@@ -270,5 +275,22 @@ class BaseIFace:
                         team_records[record['tid']]['players'] = \
                             [(self.shortPlayerName(record['firstname'], record['lastname'],
                                                    record['surname']), record['plid'])]
+                        team_records[record['tid']]['players_nq'] = []
+                sql = self.select_teams_nq.format(tourn.id)
+                cursor.execute(sql)
+                for record in cursor.fetchall():
+                    if record['tid'] in team_records:
+                        team_records[record['tid']]['players_nq'].append(
+                            (self.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
+                             record['plid']))
+                    else:
+                        team_records[record['tid']] = {}
+                        for key in ['placeh', 'placel', 'result', 'pb', 'ro', 'mb']:
+                            team_records[record['tid']][key] = record[key]
+                        team_records[record['tid']]['team'] = record['team_name']
+                        team_records[record['tid']]['players_nq'] = \
+                            [(self.shortPlayerName(record['firstname'], record['lastname'],
+                                                   record['surname']), record['plid'])]
+                cursor.execute(sql)
                 for team in team_records.values():
                     tourn.addParticipant(TournamentRecordTeam(**team))

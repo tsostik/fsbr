@@ -302,6 +302,10 @@ class TournamentRecordTeam(TournamentRecord):
         super().__init__(**kwargs)
         self.team = kwargs['team']
         self.players = kwargs['players']
+        if 'players_nq' in kwargs:
+            self.players_nq = kwargs['players_nq']
+        else:
+            self.players_nq = []
 
     @property
     def xml(self)->et.Element:
@@ -310,6 +314,11 @@ class TournamentRecordTeam(TournamentRecord):
         team.text = self.team
         for pl in self.players:
             player = et.SubElement(team, 'player')
+            player.set('id', str(pl[1]))
+            player.text = pl[0]
+        for pl in self.players_nq:
+            player = et.SubElement(team, 'player')
+            player.set('qualified', "0")
             player.set('id', str(pl[1]))
             player.text = pl[0]
         return result
