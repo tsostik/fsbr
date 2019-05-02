@@ -48,6 +48,14 @@ class BaseIFace:
         "left join players as p1 on player1 = p1.player_id " \
         "left join players as p2 on player2 = p2.player_id " \
         "where tour_id = {0};"
+    select_teams = \
+        "select placeh, placel, pb, ro, mb, result, teams.team_id as tid, team_name, " \
+        "players.player_id as plid, firstname, lastname, surname " \
+        "from team_players " \
+        "left join teams using (team_id) " \
+        "left join tourn_team using(team_id) "\
+        "left join players using (player_id) " \
+        "where team_id in (select team_id from tourn_team where tour_id = {0});"
 
     def __init__(self):
         self.conn = None
@@ -94,87 +102,95 @@ class BaseIFace:
             sql = self.select_player.format("player_id = {0}".format(plid))
             cursor.execute(sql)
             record = cursor.fetchone()
-            (razr, razr_temp) = self.getRazr(record['razr'], record['razr_coeff'])
-            pl = Player(id=record['player_id'],
-                        lastname=record['firstname'],
-                        firstname=record['lastname'],
-                        fathername=record['surname'],
-                        birthdate=record['birthdate'],
-                        city=record['city_name'],
-                        mail=record['mail'],
-                        razr=razr,
-                        razr_temp=razr_temp,
-                        rate=record['rate'],
-                        pb=record['pb'],
-                        mb=record['mb'],
-                        emb=record['emb'])
+            if record:
+                (razr, razr_temp) = self.getRazr(record['razr'], record['razr_coeff'])
+                pl = Player(id=record['player_id'],
+                            lastname=record['firstname'],
+                            firstname=record['lastname'],
+                            fathername=record['surname'],
+                            birthdate=record['birthdate'],
+                            city=record['city_name'],
+                            mail=record['mail'],
+                            razr=razr,
+                            razr_temp=razr_temp,
+                            rate=record['rate'],
+                            pb=record['pb'],
+                            mb=record['mb'],
+                            emb=record['emb'])
+            else:
+                pl = Player()
         return pl
 
     def loadAdminPos(self, pl: Player):
-        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = self.select_admin.format(pl.id)
-            cursor.execute(sql)
-            for pos in cursor.fetchall():
-                pl.addPosition(AdminPos(**pos))
+        if pl.id:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = self.select_admin.format(pl.id)
+                cursor.execute(sql)
+                for pos in cursor.fetchall():
+                    pl.addPosition(AdminPos(**pos))
 
     def loadDirecting(self, pl: Player):
-        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = self.select_directing.format(pl.id)
-            cursor.execute(sql)
-            for pos in cursor.fetchall():
-                pl.addDirecting(TdPos(**pos))
+        if pl.id:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = self.select_directing.format(pl.id)
+                cursor.execute(sql)
+                for pos in cursor.fetchall():
+                    pl.addDirecting(TdPos(**pos))
 
     def loadOtherRecords(self, pl: Player):
-        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = self.select_other.format(pl.id)
-            cursor.execute(sql)
-            for pos in cursor.fetchall():
-                pl.addOther(OtherPos(**pos))
+        if pl.id:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = self.select_other.format(pl.id)
+                cursor.execute(sql)
+                for pos in cursor.fetchall():
+                    pl.addOther(OtherPos(**pos))
 
     def loadPlayingRecords(self, pl: Player):
-        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            # Для ускорения последующей работы заранее загрузим данные о командах и партнерах
-            # Парные турниры
-            sql = \
-                "select tour_id, players.player_id as player_id, firstname, lastname, surname " \
-                "from (select tour_id, if(player1={0}, player2, player1) as player_id " \
-                "from tourn_pair " \
-                "where {0} in (player1, player2) ) as s_partner " \
-                "left join players using(player_id);".format(pl.id)
-            cursor.execute(sql)
-            parts_pair = {}
-            for rec in cursor.fetchall():
-                parts_pair[rec['tour_id']] = \
-                    (self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id'])
+        if pl.id:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                # Для ускорения последующей работы заранее загрузим данные о командах и партнерах
+                # Парные турниры
+                sql = \
+                    "select tour_id, players.player_id as player_id, firstname, lastname, surname " \
+                    "from (select tour_id, if(player1={0}, player2, player1) as player_id " \
+                    "from tourn_pair " \
+                    "where {0} in (player1, player2) ) as s_partner " \
+                    "left join players using(player_id);".format(pl.id)
+                cursor.execute(sql)
+                parts_pair = {}
+                for rec in cursor.fetchall():
+                    parts_pair[rec['tour_id']] = \
+                        (self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id'])
 
-            # Командные турниры
-            sql = \
-                "select tour_id, teams.team_id, team_name, player_id, firstname, lastname, surname " \
-                "from team_players "\
-                "left join teams using (team_id) "\
-                "left join players using (player_id) " \
-                "left join tourn_team using (team_id) " \
-                "where team_id in (select team_id from team_players where player_id = {0})".format(pl.id)
-            cursor.execute(sql)
-            parts_team = {}
-            for rec in cursor.fetchall():
-                if rec['tour_id'] in parts_team:
-                    parts_team[rec['tour_id']][1].append(
-                        (self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id']))
-                else:
-                    parts_team[rec['tour_id']] = \
-                        [rec['team_name'],
-                         [(self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id'])]]
+                # Командные турниры
+                sql = \
+                    "select tour_id, teams.team_id, team_name, player_id, firstname, lastname, surname " \
+                    "from team_players "\
+                    "left join teams using (team_id) "\
+                    "left join players using (player_id) " \
+                    "left join tourn_team using (team_id) " \
+                    "where team_id in (select team_id from team_players where player_id = {0})".format(pl.id)
+                cursor.execute(sql)
+                parts_team = {}
+                for rec in cursor.fetchall():
+                    if rec['tour_id'] in parts_team:
+                        parts_team[rec['tour_id']][1].append(
+                            (self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id']))
+                    else:
+                        parts_team[rec['tour_id']] = \
+                            [rec['team_name'],
+                             [(self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']),
+                               rec['player_id'])]]
 
-            sql = self.select_results.format(pl.id)
-            cursor.execute(sql)
-            for rec in cursor.fetchall():
-                record = rec
-                if rec['id'] in parts_pair:
-                    record['partner'] = parts_pair[rec['id']]
-                if rec['id'] in parts_team:
-                    record['partner'] = parts_team[rec['id']]
-                pl.addResult(PlayingRecord(**rec))
+                sql = self.select_results.format(pl.id)
+                cursor.execute(sql)
+                for rec in cursor.fetchall():
+                    record = rec
+                    if rec['id'] in parts_pair:
+                        record['partner'] = parts_pair[rec['id']]
+                    if rec['id'] in parts_team:
+                        record['partner'] = parts_team[rec['id']]
+                    pl.addResult(PlayingRecord(**rec))
 
     def loadPlayers(self):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -201,31 +217,58 @@ class BaseIFace:
     def loadTournamentData(self, tid: int) -> Tournament:
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = self.select_tourn.format(tid)
-            cursor.execute(sql)
-            tourn = Tournament(**cursor.fetchone())
-            # Load nested tournaments
-            sql = "select tourn_id as id, name from tourn_header where tounr_pair = {0};".format(tourn.id)
-            cursor.execute(sql)
-            for record in cursor.fetchall():
-                tourn.nested.append(Tournament(**record))
+            if cursor.execute(sql):
+                tourn = Tournament(**cursor.fetchone())
+                # Load nested tournaments
+                sql = "select tourn_id as id, name from tourn_header where tounr_pair = {0};".format(tourn.id)
+                cursor.execute(sql)
+                for record in cursor.fetchall():
+                    tourn.nested.append(Tournament(**record))
+            else:
+                tourn = Tournament()
         return tourn
 
     def loadIndividualParticipants(self, tourn: Tournament):
-        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = self.select_ind.format(tourn.id)
-            cursor.execute(sql)
-            for record in cursor.fetchall():
-                record['player'] = (self.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
-                                    record['player_id'])
-                tourn.addParticipant(TournamentRecordInd(**record))
+        if tourn.id:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = self.select_ind.format(tourn.id)
+                cursor.execute(sql)
+                for record in cursor.fetchall():
+                    record['player'] = (self.shortPlayerName(record['firstname'], record['lastname'],
+                                                             record['surname']),  record['player_id'])
+                    tourn.addParticipant(TournamentRecordInd(**record))
 
     def loadPairParticipants(self, tourn: Tournament):
-        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = self.select_pair.format(tourn.id)
-            cursor.execute(sql)
-            for record in cursor.fetchall():
-                record['player1'] = (self.shortPlayerName(record['first1'], record['last1'], record['sur1']),
-                                    record['id1'])
-                record['player2'] = (self.shortPlayerName(record['first2'], record['last2'], record['sur2']),
-                                    record['id2'])
-                tourn.addParticipant(TournamentRecordPair(**record))
+        if tourn.id:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = self.select_pair.format(tourn.id)
+                cursor.execute(sql)
+                for record in cursor.fetchall():
+                    record['player1'] = (self.shortPlayerName(record['first1'], record['last1'], record['sur1']),
+                                         record['id1'])
+                    record['player2'] = (self.shortPlayerName(record['first2'], record['last2'], record['sur2']),
+                                         record['id2'])
+                    tourn.addParticipant(TournamentRecordPair(**record))
+
+    def loadTeamParticinatnts(self, tourn: Tournament):
+        # TODO: Add non-qualified players
+        if tourn.id:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = self.select_teams.format(tourn.id)
+                cursor.execute(sql)
+                team_records = {}
+                for record in cursor.fetchall():
+                    if record['tid'] in team_records:
+                        team_records[record['tid']]['players'].append(
+                            (self.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
+                             record['plid']))
+                    else:
+                        team_records[record['tid']] = {}
+                        for key in ['placeh', 'placel', 'result', 'pb', 'ro', 'mb']:
+                            team_records[record['tid']][key] = record[key]
+                        team_records[record['tid']]['team'] = record['team_name']
+                        team_records[record['tid']]['players'] = \
+                            [(self.shortPlayerName(record['firstname'], record['lastname'],
+                                                   record['surname']), record['plid'])]
+                for team in team_records.values():
+                    tourn.addParticipant(TournamentRecordTeam(**team))

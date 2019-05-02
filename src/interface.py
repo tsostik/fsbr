@@ -189,42 +189,43 @@ class Player:
     def xml(self)->et.Element:
         player_record = et.Element('player')
         player_record.set('id', str(self.id))
+        if self.id:
+            info = et.SubElement(player_record, 'info')
+            for field in ['lastname', 'firstname', 'fathername', 'city', 'mail']:
+                locals()[field] = et.SubElement(info, field)
+                locals()[field].text = self.__dict__[field]
+            if hasattr(self.birthdate, "strftime"):
+                birthdate = et.SubElement(info, 'birthdate')
+                birthdate.text = self.birthdate.strftime("%Y-%m-%d")
 
-        info = et.SubElement(player_record, 'info')
-        for field in ['lastname', 'firstname', 'fathername', 'city', 'mail']:
-            locals()[field] = et.SubElement(info, field)
-            locals()[field].text = self.__dict__[field]
-        if hasattr(self.birthdate, "strftime"):
-            birthdate = et.SubElement(info, 'birthdate')
-            birthdate.text = self.birthdate.strftime("%Y-%m-%d")
+            sportlevel = et.SubElement(player_record, 'sportlevel')
+            for field in ['razr', 'pb', 'rate', 'mb']:
+                locals()[field] = et.SubElement(sportlevel, field)
+                locals()[field].text = str(self.__dict__[field])
+            if self.razr_temp:
+                locals()['razr'].set('temp', '1')
 
-        sportlevel = et.SubElement(player_record, 'sportlevel')
-        for field in ['razr', 'pb', 'rate', 'mb']:
-            locals()[field] = et.SubElement(sportlevel, field)
-            locals()[field].text = str(self.__dict__[field])
-        if self.razr_temp:
-            locals()['razr'].set('temp', '1')
+            if self.results:
+                results = et.SubElement(player_record, 'results')
+                for rec in self.results:
+                    results.append(rec.xml)
 
-        if self.results:
-            results = et.SubElement(player_record, 'results')
-            for rec in self.results:
-                results.append(rec.xml)
+            if self.positions:
+                admin = et.SubElement(player_record, 'administrative')
+                for pos in self.positions:
+                    admin.append(pos.xml)
 
-        if self.positions:
-            admin = et.SubElement(player_record, 'administrative')
-            for pos in self.positions:
-                admin.append(pos.xml)
+            if self.directing:
+                directing = et.SubElement(player_record, 'directing')
+                for pos in self.directing:
+                    directing.append(pos.xml)
 
-        if self.directing:
-            directing = et.SubElement(player_record, 'directing')
-            for pos in self.directing:
-                directing.append(pos.xml)
-
-        if self.other:
-            other = et.SubElement(player_record, 'other')
-            for pos in self.other:
-                other.append(pos.xml)
-
+            if self.other:
+                other = et.SubElement(player_record, 'other')
+                for pos in self.other:
+                    other.append(pos.xml)
+        else:
+            player_record.text = "Player not found"
         return player_record
 
 
@@ -295,6 +296,25 @@ class TournamentRecordPair(TournamentRecord):
         return result
 
 
+class TournamentRecordTeam(TournamentRecord):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.team = kwargs['team']
+        self.players = kwargs['players']
+
+    @property
+    def xml(self)->et.Element:
+        result = super().xml
+        team = et.SubElement(result, 'team')
+        team.text = self.team
+        for pl in self.players:
+            player = et.SubElement(team, 'player')
+            player.set('id', str(pl[1]))
+            player.text = pl[0]
+        return result
+
+
 class Tournament:
     allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city']
     types = {1: "Individual", 2: "Pair", 3: "Team", "4": "Session", 5: "Club", 6: "Festival"}
@@ -317,19 +337,22 @@ class Tournament:
     def xml(self)->et.Element:
         tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
-        tournament.set('type', self.types[self.type])
-        if self.nested:
-            nested = et.SubElement(tournament, 'nested')
-            for child in self.nested:
-                nested_tournament = et.SubElement(nested, 'tournament')
-                nested_tournament.set('id', str(child.id))
-                nested_tournament.text = str(child.name)
-        info = et.SubElement(tournament, 'info')
-        for field in ['name', 'city', 'start', 'end']:
-            locals()[field] = et.SubElement(info, field)
-            locals()[field].text = str(self.__dict__[field])
-        if self.participants:
-            participants = et.SubElement(tournament, 'participants')
-            for part in self.participants:
-                participants.append(part.xml)
+        if self.id:
+            tournament.set('type', self.types[self.type])
+            if self.nested:
+                nested = et.SubElement(tournament, 'nested')
+                for child in self.nested:
+                    nested_tournament = et.SubElement(nested, 'tournament')
+                    nested_tournament.set('id', str(child.id))
+                    nested_tournament.text = str(child.name)
+            info = et.SubElement(tournament, 'info')
+            for field in ['name', 'city', 'start', 'end']:
+                locals()[field] = et.SubElement(info, field)
+                locals()[field].text = str(self.__dict__[field])
+            if self.participants:
+                participants = et.SubElement(tournament, 'participants')
+                for part in self.participants:
+                    participants.append(part.xml)
+        else:
+            tournament.text = "Tournament not found"
         return tournament
