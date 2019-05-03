@@ -2,7 +2,7 @@ import pymysql.cursors
 from src.interface import *
 
 
-class BaseIFace:
+class Queries:
     select_pb = "(select player_id, ifnull( sum(pb), 0) as pb_, sum(emb) as emb_ " \
                 "from results " \
                 "group by player_id) " \
@@ -63,22 +63,9 @@ class BaseIFace:
         "left join players using (player_id) " \
         "where team_id in (select team_id from tourn_team where tour_id = {0});"
 
-    def __init__(self):
-        self.conn = None
 
-    def __enter__(self):
-        self.connectToDb()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.conn.close()
-
-    def connectToDb(self):
-        self.conn = pymysql.connect(user='fsbr_plrs_python',
-                                    host='localhost',
-                                    password='fsbr_plrs_python',
-                                    db='fsbr')
-
+class Helper: 
+    
     @staticmethod
     def getRazr(db_razr, coeff):
         result = db_razr
@@ -103,13 +90,31 @@ class BaseIFace:
         result += '.'
         return result
 
+
+class BaseIFace:
+    def __init__(self):
+        self.conn = None
+
+    def __enter__(self):
+        self.connectToDb()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.conn.close()
+
+    def connectToDb(self):
+        self.conn = pymysql.connect(user='fsbr_plrs_python',
+                                    host='localhost',
+                                    password='fsbr_plrs_python',
+                                    db='fsbr')
+
     def loadPlayerData(self, plid) -> Player:
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = self.select_player.format("player_id = {0}".format(plid))
+            sql = Queries.select_player.format("player_id = {0}".format(plid))
             cursor.execute(sql)
             record = cursor.fetchone()
             if record:
-                (razr, razr_temp) = self.getRazr(record['razr'], record['razr_coeff'])
+                (razr, razr_temp) = Helper.getRazr(record['razr'], record['razr_coeff'])
                 pl = Player(id=record['player_id'],
                             lastname=record['firstname'],
                             firstname=record['lastname'],
@@ -130,7 +135,7 @@ class BaseIFace:
     def loadAdminPos(self, pl: Player):
         if pl.id:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-                sql = self.select_admin.format(pl.id)
+                sql = Queries.select_admin.format(pl.id)
                 cursor.execute(sql)
                 for pos in cursor.fetchall():
                     pl.addPosition(AdminPos(**pos))
@@ -138,7 +143,7 @@ class BaseIFace:
     def loadDirecting(self, pl: Player):
         if pl.id:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-                sql = self.select_directing.format(pl.id)
+                sql = Queries.select_directing.format(pl.id)
                 cursor.execute(sql)
                 for pos in cursor.fetchall():
                     pl.addDirecting(TdPos(**pos))
@@ -146,7 +151,7 @@ class BaseIFace:
     def loadOtherRecords(self, pl: Player):
         if pl.id:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-                sql = self.select_other.format(pl.id)
+                sql = Queries.select_other.format(pl.id)
                 cursor.execute(sql)
                 for pos in cursor.fetchall():
                     pl.addOther(OtherPos(**pos))
@@ -166,7 +171,7 @@ class BaseIFace:
                 parts_pair = {}
                 for rec in cursor.fetchall():
                     parts_pair[rec['tour_id']] = \
-                        (self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id'])
+                        (Helper.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id'])
 
                 # Командные турниры
                 sql = \
@@ -181,14 +186,15 @@ class BaseIFace:
                 for rec in cursor.fetchall():
                     if rec['tour_id'] in parts_team:
                         parts_team[rec['tour_id']][1].append(
-                            (self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']), rec['player_id']))
+                            (Helper.shortPlayerName(rec['firstname'], rec['lastname'],
+                                                    rec['surname']), rec['player_id']))
                     else:
                         parts_team[rec['tour_id']] = \
                             [rec['team_name'],
-                             [(self.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']),
+                             [(Helper.shortPlayerName(rec['firstname'], rec['lastname'], rec['surname']),
                                rec['player_id'])]]
 
-                sql = self.select_results.format(pl.id)
+                sql = Queries.select_results.format(pl.id)
                 cursor.execute(sql)
                 for rec in cursor.fetchall():
                     record = rec
@@ -200,11 +206,11 @@ class BaseIFace:
 
     def loadPlayers(self):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = self.select_player.format("state in (1, 2, 4, 5)")
+            sql = Queries.select_player.format("state in (1, 2, 4, 5)")
             cursor.execute(sql)
             result = []
             for record in cursor.fetchall():
-                (razr, razr_temp) = self.getRazr(record['razr'], record['razr_coeff'])
+                (razr, razr_temp) = Helper.getRazr(record['razr'], record['razr_coeff'])
                 pl = Player(id=record['player_id'],
                             lastname=record['firstname'],
                             firstname=record['lastname'],
@@ -222,7 +228,7 @@ class BaseIFace:
 
     def loadTournamentData(self, tid: int) -> Tournament:
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = self.select_tourn.format(tid)
+            sql = Queries.select_tourn.format(tid)
             if cursor.execute(sql):
                 tourn = Tournament(**cursor.fetchone())
                 # Load nested tournaments
@@ -237,35 +243,35 @@ class BaseIFace:
     def loadIndividualParticipants(self, tourn: Tournament):
         if tourn.id:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-                sql = self.select_ind.format(tourn.id)
+                sql = Queries.select_ind.format(tourn.id)
                 cursor.execute(sql)
                 for record in cursor.fetchall():
-                    record['player'] = (self.shortPlayerName(record['firstname'], record['lastname'],
-                                                             record['surname']),  record['player_id'])
+                    record['player'] = (Helper.shortPlayerName(record['firstname'], record['lastname'],
+                                                               record['surname']),  record['player_id'])
                     tourn.addParticipant(TournamentRecordInd(**record))
 
     def loadPairParticipants(self, tourn: Tournament):
         if tourn.id:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-                sql = self.select_pair.format(tourn.id)
+                sql = Queries.select_pair.format(tourn.id)
                 cursor.execute(sql)
                 for record in cursor.fetchall():
-                    record['player1'] = (self.shortPlayerName(record['first1'], record['last1'], record['sur1']),
+                    record['player1'] = (Helper.shortPlayerName(record['first1'], record['last1'], record['sur1']),
                                          record['id1'])
-                    record['player2'] = (self.shortPlayerName(record['first2'], record['last2'], record['sur2']),
+                    record['player2'] = (Helper.shortPlayerName(record['first2'], record['last2'], record['sur2']),
                                          record['id2'])
                     tourn.addParticipant(TournamentRecordPair(**record))
 
     def loadTeamParticinatnts(self, tourn: Tournament):
         if tourn.id:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-                sql = self.select_teams.format(tourn.id)
+                sql = Queries.select_teams.format(tourn.id)
                 cursor.execute(sql)
                 team_records = {}
                 for record in cursor.fetchall():
                     if record['tid'] in team_records:
                         team_records[record['tid']]['players'].append(
-                            (self.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
+                            (Helper.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
                              record['plid']))
                     else:
                         team_records[record['tid']] = {}
@@ -273,15 +279,15 @@ class BaseIFace:
                             team_records[record['tid']][key] = record[key]
                         team_records[record['tid']]['team'] = record['team_name']
                         team_records[record['tid']]['players'] = \
-                            [(self.shortPlayerName(record['firstname'], record['lastname'],
-                                                   record['surname']), record['plid'])]
+                            [(Helper.shortPlayerName(record['firstname'], record['lastname'],
+                                                     record['surname']), record['plid'])]
                         team_records[record['tid']]['players_nq'] = []
-                sql = self.select_teams_nq.format(tourn.id)
+                sql = Queries.select_teams_nq.format(tourn.id)
                 cursor.execute(sql)
                 for record in cursor.fetchall():
                     if record['tid'] in team_records:
                         team_records[record['tid']]['players_nq'].append(
-                            (self.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
+                            (Helper.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
                              record['plid']))
                     else:
                         team_records[record['tid']] = {}
@@ -289,8 +295,8 @@ class BaseIFace:
                             team_records[record['tid']][key] = record[key]
                         team_records[record['tid']]['team'] = record['team_name']
                         team_records[record['tid']]['players_nq'] = \
-                            [(self.shortPlayerName(record['firstname'], record['lastname'],
-                                                   record['surname']), record['plid'])]
+                            [(Helper.shortPlayerName(record['firstname'], record['lastname'],
+                                                     record['surname']), record['plid'])]
                 cursor.execute(sql)
                 for team in team_records.values():
                     tourn.addParticipant(TournamentRecordTeam(**team))
