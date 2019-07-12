@@ -1,19 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Результаты поиска игрока</title>
 </head>
 <body>
-{% if results%}
-    <table>
-    {% for player in players %}
-        <tr>
-            {% for col in player %}
-            <td>{{col}}</td>
-            {% endfor %}
-    {% endfor %}
-    </table>
-{% endif %}
+{#% if results %#}
+    <table>{% for player in players %}
+        <tr>{% for col in player %}<td>{{col}}</td>{% endfor %}
+    {% endfor %}</table>
+{#% endif %#}
 </body>
 </html>

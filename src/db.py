@@ -63,6 +63,11 @@ class Queries:
         "left join players using (player_id) " \
         "where team_id in (select team_id from tourn_team where tour_id = {0});"
 
+    select_find_player = " select player_id as plid, firstname, lastname, surname, city_name " \
+                         "from players left join cities using(city_id) " \
+                         "where state not in (7) and firstname like '%{0}%' " \
+                         "order by firstname, lastname, surname, city_name;"
+
 
 class Helper: 
     
@@ -300,3 +305,10 @@ class BaseIFace:
                 cursor.execute(sql)
                 for team in team_records.values():
                     tourn.addParticipant(TournamentRecordTeam(**team))
+
+    def findPlayerByName(self, name: str):
+        if len(name) >= 3:
+            with self.conn.cursor(pymysql.cursors.Cursor) as cursor:
+                sql = Queries.select_find_player.format(pymysql.escape_string(name.strip()))
+                cursor.execute(sql)
+                return cursor.fetchall()

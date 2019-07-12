@@ -11,6 +11,12 @@ def getPlayerXml(player_id):
     return player.xml
 
 
+def findPlayer(name: str):
+    with BaseIFace() as base:
+        result = base.findPlayerByName(name)
+    return result
+
+
 """    
     players = base.loadPlayers()
     answer = ET.Element("players")

@@ -1,4 +1,4 @@
-from flask import Flask, Response
+from flask import Flask, Response, render_template
 from src.players import *
 from src.tournaments import *
 import lxml.etree as et
@@ -18,6 +18,16 @@ def player_xml(player_id):
     res = getPlayerXml(player_id)
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
+
+@app.route('/players/<name>/')
+def player_find(name: str):
+    return render_template('find.htm', players=findPlayer(name))
+
+
+@app.route('/players/')
+def players_form():
+    return "Show user form"
 
 
 @app.route('/tourns/<int:tournament_id>/')
