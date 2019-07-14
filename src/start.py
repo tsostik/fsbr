@@ -15,6 +15,7 @@ def hello_world():
 
 
 @app.route('/players/<int:player_id>/')
+@app.route('/players/<int:player_id>/xml/')
 def player_xml(player_id):
     start_time = time.perf_counter()
     res = getPlayerXml(player_id)
@@ -33,6 +34,7 @@ def players_form():
 
 
 @app.route('/tourns/<int:tournament_id>/')
+@app.route('/tourns/<int:tournament_id>/xml/')
 def tournament_xml(tournament_id):
     start_time = time.perf_counter()
     res = getTornamentXml(tournament_id)
@@ -41,6 +43,7 @@ def tournament_xml(tournament_id):
 
 
 @app.route('/rate/fulllist/')
+@app.route('/rate/fulllist/xml/')
 def fullList_xml():
     start_time = time.perf_counter()
     res = getFullList()
@@ -49,7 +52,9 @@ def fullList_xml():
 
 
 @app.route('/rate/')
+@app.route('/rate/xml/')
 @app.route('/rate/<rdate>/')
+@app.route('/rate/<rdate>/xml/')
 def rate_xml(rdate: str=None):
     start_time = time.perf_counter()
     if rdate is None:
