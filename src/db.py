@@ -267,7 +267,7 @@ class BaseIFace:
                                          record['id2'])
                     tourn.addParticipant(TournamentRecordPair(**record))
 
-    def loadTeamParticinatnts(self, tourn: Tournament):
+    def loadTeamParticipants(self, tourn: Tournament):
         if tourn.id:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
                 sql = Queries.select_teams.format(tourn.id)

@@ -9,5 +9,5 @@ def getTornamentXml(tournament_id):
         elif tournament.type == 2:
             base.loadPairParticipants(tournament)
         elif tournament.type == 3:
-            base.loadTeamParticinatnts(tournament)
+            base.loadTeamParticipants(tournament)
     return tournament.xml
