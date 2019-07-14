@@ -11,15 +11,29 @@ class Queries:
                 "from results as r left join results_ses as s on " \
                 "( (r.player_id = s.player_id) and (r.tourn_id = s.main_tourn_id) ) group by player_id )" \
                 "as sel_mb "
+    #TODO: select_player and select_fullList are very similar. Refactor to reduce code duplication
     select_player = \
         "select player_id, firstname, lastname, surname, birthdate, city_name, razr, razr_coeff, mail, " \
-        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb " \
+        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
+        "firstname < 'А' as isLatin" \
         "from players " \
         "left join cities using (city_id) " \
         "left join ratelist on player_id=id " \
         "left join " + select_pb + "using(player_id) " \
                                    "left join " + select_mb + "using(player_id)" \
                                                               "where {0};"
+    select_fullList = \
+        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
+        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
+        "firstname < 'А' as isLatin " \
+        "from players " \
+        "left join cities using (city_id) " \
+        "left join ratelist on player_id=id " \
+        "left join " + select_pb + "using(player_id) " \
+                                   "left join " + select_mb + "using(player_id) " \
+        "where players.state in (1, 2, 4, 5) " \
+        "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
+
     select_admin = "select year_s as since, year_f as till, position as title, comitee as committee " \
                    "from admin_pos where player_id = {0};"
     select_directing = "select tds.tourn_id as id, tourn_header.name as tournament, " \
@@ -312,3 +326,26 @@ class BaseIFace:
                 sql = Queries.select_find_player.format(pymysql.escape_string(name.strip()))
                 cursor.execute(sql)
                 return cursor.fetchall()
+
+    def loadFullList(self):
+        result = []
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = Queries.select_fullList
+            cursor.execute(sql)
+            for record in cursor.fetchall():
+                (razr, razr_temp) = Helper.getRazr(record['razr'], record['razr_coeff'])
+                player = RateRecord(id=record['player_id'],
+                                lastname=record['firstname'],
+                                firstname=record['lastname'],
+                                fathername=record['surname'],
+                                birthdate=record['birthdate'],
+                                sex=record['sex'],
+                                city=record['city_name'],
+                                razr=razr,
+                                razr_temp=razr_temp,
+                                rate=record['rate'],
+                                pb=record['pb'],
+                                mb=record['mb'],
+                                emb=record['emb'])
+                result.append(player)
+        return result

@@ -1,5 +1,5 @@
 import lxml.etree as et
-
+import datetime
 
 class PlayingRecord:
     allowed_fields = ['id', 'year', 'name', 'partner', 'placel', 'placeh', 'pb', 'ro', 'mb', 'champ_t', 'type']
@@ -34,14 +34,16 @@ class PlayingRecord:
             result = True
         elif (self.champ_t == 32 or self.champ_t == 33) and self.placeh <= 10:  # ПЧР или ПЧР-ИМП, места 1-10
             result = True
-        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:  # Парный чемпионат Европы или Мира, места 1-10
+        elif (
+                40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:  # Парный чемпионат Европы или Мира, места 1-10
             result = True
-        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:  # Командный чемпионат Европы или Мира, места 1-10
+        elif (
+                40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:  # Командный чемпионат Европы или Мира, места 1-10
             result = True
         return result
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
         if self.achievement:
@@ -86,7 +88,7 @@ class OtherPos:
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         record = et.Element('record')
         for field in ['year', 'event', 'title']:
             locals()[field] = et.SubElement(record, field)
@@ -106,7 +108,7 @@ class TdPos:
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         position = et.Element('position')
         for field in ['tournament', 'date', 'title']:
             locals()[field] = et.SubElement(position, field)
@@ -126,7 +128,7 @@ class AdminPos:
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         position = et.Element('position')
         for field in self.allowed_fields:
             if self.__dict__[field] is not None and self.__dict__[field] != 0 and self.__dict__[field] != "":
@@ -137,7 +139,7 @@ class AdminPos:
 
 class Player:
     allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'city', 'mail',
-                      'razr', 'razr_temp', 'pb', 'rate', 'mb']
+                      'razr', 'razr_temp', 'pb', 'rate', 'mb', 'emb']
 
     def __init__(self, **kwargs):
         self.id = None
@@ -151,6 +153,7 @@ class Player:
         self.pb = None
         self.rate = None
         self.mb = None
+        self.emb = None
         self.positions = []
         self.directing = []
         self.results = []
@@ -186,22 +189,30 @@ class Player:
         self.other.append(record)
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         player_record = et.Element('player')
         player_record.set('id', str(self.id))
         if self.id:
             info = et.SubElement(player_record, 'info')
             for field in ['lastname', 'firstname', 'fathername', 'city', 'mail']:
-                locals()[field] = et.SubElement(info, field)
-                locals()[field].text = self.__dict__[field]
+                if field in self.__dict__:
+                    locals()[field] = et.SubElement(info, field)
+                    locals()[field].text = self.__dict__[field]
             if hasattr(self.birthdate, "strftime"):
                 birthdate = et.SubElement(info, 'birthdate')
                 birthdate.text = self.birthdate.strftime("%Y-%m-%d")
 
             sportlevel = et.SubElement(player_record, 'sportlevel')
-            for field in ['razr', 'pb', 'rate', 'mb']:
+            for field in ['razr', 'pb', 'rate']:
                 locals()[field] = et.SubElement(sportlevel, field)
                 locals()[field].text = str(self.__dict__[field])
+
+            mb = et.SubElement(sportlevel, 'mb')
+            mb.text = str(self.mb + self.emb)
+            if self.emb > 0:
+                emb = et.SubElement(sportlevel, 'emb')
+                emb.text = str(self.emb)
+
             if self.razr_temp:
                 locals()['razr'].set('temp', '1')
 
@@ -246,7 +257,7 @@ class TournamentRecord:
         return str(self.placeh) if self.placeh == self.placel else "{0}-{1}".format(self.placeh, self.placel)
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         record = et.Element('record')
         result = et.SubElement(record, 'result')
         result.text = "{0}".format(self.result, '.2f')
@@ -267,7 +278,7 @@ class TournamentRecordInd(TournamentRecord):
         self.player = kwargs['player']
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         result = super().xml
         participant = et.SubElement(result, 'participant')
         player = et.SubElement(participant, 'player')
@@ -284,7 +295,7 @@ class TournamentRecordPair(TournamentRecord):
         self.player2 = kwargs['player2']
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         result = super().xml
         participant = et.SubElement(result, 'participant')
         player1 = et.SubElement(participant, 'player')
@@ -308,7 +319,7 @@ class TournamentRecordTeam(TournamentRecord):
             self.players_nq = []
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         result = super().xml
         team = et.SubElement(result, 'team')
         team.text = self.team
@@ -343,7 +354,7 @@ class Tournament:
         self.participants.append(participant)
 
     @property
-    def xml(self)->et.Element:
+    def xml(self) -> et.Element:
         tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
         if self.id:
@@ -365,3 +376,69 @@ class Tournament:
         else:
             tournament.text = "Tournament not found"
         return tournament
+
+
+class RateRecord:
+    allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'city',
+                      'razr', 'razr_temp', 'pb', 'rate', 'mb', 'emb']
+
+    def __init__(self, **kwargs):
+        self.id = None
+        self.lastname = ''
+        self.firstname = ''
+        self.fathername = ''
+        self.city = ''
+        self.razr = None
+        self.razr_temp = False
+        self.pb = 0
+        self.rate = 0
+        self.mb = 0
+        self.emb = 0
+        self.categories = ['O']
+        self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
+        if self.firstname == 'Щ':
+            self.firstname = ''
+        if self.fathername == 'Щ':
+            self.fathername = ''
+        self.shortname = '{0} {1}.{2}.'.format(self.lastname,
+                                               (self.firstname[0] if len(self.firstname) > 0 else ''),
+                                               (self.fathername[0] if len(self.fathername) > 0 else ''))
+        if 'sex' in kwargs and kwargs['sex'] == 0:
+            self.categories.append('W')
+
+        if 'birthdate' in kwargs and hasattr(kwargs['birthdate'], 'year'):  # birthdate is valid date
+            # TODO Replace today with actual date
+            age = datetime.date.today().year - kwargs['birthdate'].year
+            if age < 26:
+                self.categories.append('J')
+            if age >= 61:
+                # This age should be revisited later according to EBL policies.
+                # See SCoC for current european Championship
+                self.categories.append('S')
+
+    @property
+    def xmlFullList(self) -> et.Element:
+        result = et.Element('player')
+        result.set('id', str(self.id))
+        lastname = et.SubElement(result, 'lastname')
+        lastname.text = self.lastname
+        firstname = et.SubElement(result, 'firstname')
+        firstname.text = self.firstname
+        fathername = et.SubElement(result, 'fathername')
+        fathername.text = self.fathername
+        city = et.SubElement(result, 'city')
+        city.text = self.city
+        razr = et.SubElement(result, 'razr')
+        razr.text = str(self.razr)
+        if self.razr_temp:
+            razr.text += '*'
+        mb = et.SubElement(result, 'mb')
+        mb.text = str(self.mb + self.emb)
+        if self.emb > 0:
+            emb = et.SubElement(mb, 'online')
+            emb.text = str(self.emb)
+        pb = et.SubElement(result, 'pb')
+        pb.text = str(self.pb)
+        rate = et.SubElement(result, 'rate')
+        rate.text = str(self.rate)
+        return result

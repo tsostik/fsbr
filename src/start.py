@@ -2,6 +2,7 @@ from flask import Flask, Response, render_template
 from werkzeug.middleware.proxy_fix import ProxyFix
 from src.players import *
 from src.tournaments import *
+from src.rate import *
 import lxml.etree as et
 import time
 
@@ -37,6 +38,15 @@ def tournament_xml(tournament_id):
     res = getTornamentXml(tournament_id)
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
+
+@app.route('/rate/fulllist/')
+def fullList_xml():
+    start_time = time.perf_counter()
+    res = getFullList()
+    res.set('generated', str(time.perf_counter() - start_time))
+    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 if __name__ == '__main__':
