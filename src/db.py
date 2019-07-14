@@ -11,7 +11,7 @@ class Queries:
                 "from results as r left join results_ses as s on " \
                 "( (r.player_id = s.player_id) and (r.tourn_id = s.main_tourn_id) ) group by player_id )" \
                 "as sel_mb "
-    #TODO: select_player and select_fullList are very similar. Refactor to reduce code duplication
+    # TODO: select_player and select_fullList are very similar. Refactor to reduce code duplication
     select_player = \
         "select player_id, firstname, lastname, surname, birthdate, city_name, razr, razr_coeff, mail, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
@@ -20,8 +20,9 @@ class Queries:
         "left join cities using (city_id) " \
         "left join ratelist on player_id=id " \
         "left join " + select_pb + "using(player_id) " \
-                                   "left join " + select_mb + "using(player_id)" \
-                                                              "where {0};"
+        "left join " + select_mb + "using(player_id)" \
+        "where {0};"
+
     select_fullList = \
         "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
@@ -30,9 +31,20 @@ class Queries:
         "left join cities using (city_id) " \
         "left join ratelist on player_id=id " \
         "left join " + select_pb + "using(player_id) " \
-                                   "left join " + select_mb + "using(player_id) " \
+        "left join " + select_mb + "using(player_id) " \
         "where players.state in (1, 2, 4, 5) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
+
+    select_rate = \
+        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
+        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb " \
+        "from ratelist " \
+        "left join players on player_id=id " \
+        "left join cities using (city_id) " \
+        "left join " + select_pb + "using(player_id) " \
+        "left join " + select_mb + "using(player_id) " \
+        "where players.state in (1, 2, 4, 5) " \
+        "order by rate desc, pb desc, firstname asc"
 
     select_admin = "select year_s as since, year_f as till, position as title, comitee as committee " \
                    "from admin_pos where player_id = {0};"
@@ -49,15 +61,15 @@ class Queries:
     select_other = \
         "select events.event_id as id, event_name as event, year(event_date) as year, position as title " \
         "from events_part left join events using (event_id) where player_id = {0};"
-    select_tourn = "select tourn_id as id, type, name, tour_date as start, tour_date as end, city_name as city "\
-                   "from tourn_header left join cities using (city_id) "\
+    select_tourn = "select tourn_id as id, type, name, tour_date as start, tour_date as end, city_name as city " \
+                   "from tourn_header left join cities using (city_id) " \
                    " where tourn_id = {0};"
-    select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname "\
+    select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
                  "from tourn_ind left join players on team_id = player_id where tour_id = {0};"
     select_pair = \
         "select placeh, placel, pb, ro, mb, result, " \
-        "p1.player_id as id1, p1.firstname as first1, p1.lastname as last1, p1.surname as sur1, "\
-        "p2.player_id as id2, p2.firstname as first2, p2.lastname as last2, p2.surname as sur2 "\
+        "p1.player_id as id1, p1.firstname as first1, p1.lastname as last1, p1.surname as sur1, " \
+        "p2.player_id as id2, p2.firstname as first2, p2.lastname as last2, p2.surname as sur2 " \
         "from tourn_pair " \
         "left join players as p1 on player1 = p1.player_id " \
         "left join players as p2 on player2 = p2.player_id " \
@@ -67,7 +79,7 @@ class Queries:
         "players.player_id as plid, firstname, lastname, surname " \
         "from team_players " \
         "left join teams using (team_id) " \
-        "left join tourn_team using(team_id) "\
+        "left join tourn_team using(team_id) " \
         "left join players using (player_id) " \
         "where team_id in (select team_id from tourn_team where tour_id = {0});"
     select_teams_nq = \
@@ -83,8 +95,8 @@ class Queries:
                          "order by firstname, lastname, surname, city_name;"
 
 
-class Helper: 
-    
+class Helper:
+
     @staticmethod
     def getRazr(db_razr, coeff):
         result = db_razr
@@ -195,8 +207,8 @@ class BaseIFace:
                 # Командные турниры
                 sql = \
                     "select tour_id, teams.team_id, team_name, player_id, firstname, lastname, surname " \
-                    "from team_players "\
-                    "left join teams using (team_id) "\
+                    "from team_players " \
+                    "left join teams using (team_id) " \
                     "left join players using (player_id) " \
                     "left join tourn_team using (team_id) " \
                     "where team_id in (select team_id from team_players where player_id = {0})".format(pl.id)
@@ -266,7 +278,7 @@ class BaseIFace:
                 cursor.execute(sql)
                 for record in cursor.fetchall():
                     record['player'] = (Helper.shortPlayerName(record['firstname'], record['lastname'],
-                                                               record['surname']),  record['player_id'])
+                                                               record['surname']), record['player_id'])
                     tourn.addParticipant(TournamentRecordInd(**record))
 
     def loadPairParticipants(self, tourn: Tournament):
@@ -327,25 +339,29 @@ class BaseIFace:
                 cursor.execute(sql)
                 return cursor.fetchall()
 
-    def loadFullList(self):
+    def loadList(self, do_full=0):
         result = []
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = Queries.select_fullList
+            if do_full:
+                sql = Queries.select_fullList
+            else:
+                sql = Queries.select_rate
             cursor.execute(sql)
             for record in cursor.fetchall():
                 (razr, razr_temp) = Helper.getRazr(record['razr'], record['razr_coeff'])
                 player = RateRecord(id=record['player_id'],
-                                lastname=record['firstname'],
-                                firstname=record['lastname'],
-                                fathername=record['surname'],
-                                birthdate=record['birthdate'],
-                                sex=record['sex'],
-                                city=record['city_name'],
-                                razr=razr,
-                                razr_temp=razr_temp,
-                                rate=record['rate'],
-                                pb=record['pb'],
-                                mb=record['mb'],
-                                emb=record['emb'])
+                                    lastname=record['firstname'],
+                                    firstname=record['lastname'],
+                                    fathername=record['surname'],
+                                    birthdate=record['birthdate'],
+                                    sex=record['sex'],
+                                    city=record['city_name'],
+                                    razr=razr,
+                                    razr_temp=razr_temp,
+                                    rate=record['rate'],
+                                    pb=record['pb'])
                 result.append(player)
         return result
+
+    def loadRateList(self):
+        pass

@@ -431,7 +431,7 @@ class RateRecord:
         razr = et.SubElement(result, 'razr')
         razr.text = str(self.razr)
         if self.razr_temp:
-            razr.text += '*'
+            razr.set('temp', '1')
         mb = et.SubElement(result, 'mb')
         mb.text = str(self.mb + self.emb)
         if self.emb > 0:
@@ -441,4 +441,26 @@ class RateRecord:
         pb.text = str(self.pb)
         rate = et.SubElement(result, 'rate')
         rate.text = str(self.rate)
+        return result
+
+    @property
+    def xmlRate(self) -> et.Element:
+        result = et.Element('player')
+        result.set('id', str(self.id))
+        name = et.SubElement(result, 'name')
+        name.text = self.shortname
+        razr = et.SubElement(result, 'razr')
+        razr.text = str(self.razr)
+        if self.razr_temp:
+            razr.set('temp', '1')
+        city = et.SubElement(result, 'city')
+        city.text = self.city
+        rate = et.SubElement(result, 'rate')
+        rate.text = str(self.rate)
+        pb = et.SubElement(result, 'pb')
+        pb.text = str(self.pb)
+        categories = et.SubElement(result, 'categories')
+        for cat in self.categories:
+            category = et.SubElement(categories, 'category')
+            category.text = cat
         return result

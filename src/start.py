@@ -47,6 +47,21 @@ def fullList_xml():
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
 
+@app.route('/rate/')
+@app.route('/rate/<rdate>/')
+def rate_xml(rdate:str=None):
+    start_time = time.perf_counter()
+    if(rdate is None):
+        dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
+    else:
+        try:
+            dt = datetime.datetime.strptime(rdate, '%Y-%m-%d').date()
+        except ValueError:
+            dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
+    res = getRate(dt)
+    res.set('generated', str(time.perf_counter() - start_time))
+    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 if __name__ == '__main__':
