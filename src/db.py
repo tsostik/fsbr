@@ -7,10 +7,10 @@ class Queries:
                 "from results " \
                 "group by player_id) " \
                 "as sel_pb "
-    select_mb = "(select r.player_id, tourn_id, sum(if( r.mb > ifnull(s.mb, 0), r.mb, ifnull(s.mb, 0))) as mb_ " \
+    select_mb = "(select r.player_id, sum(if( r.mb > ifnull(s.mb, 0), r.mb, ifnull(s.mb, 0))) as mb_ " \
                 "from results as r left join results_ses as s on " \
                 "( (r.player_id = s.player_id) and (r.tourn_id = s.main_tourn_id) ) group by player_id )" \
-                "as el_mb "
+                "as sel_mb "
     select_player = \
         "select player_id, firstname, lastname, surname, birthdate, city_name, razr, razr_coeff, mail, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb " \
