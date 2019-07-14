@@ -14,8 +14,7 @@ class Queries:
     # TODO: select_player and select_fullList are very similar. Refactor to reduce code duplication
     select_player = \
         "select player_id, firstname, lastname, surname, birthdate, city_name, razr, razr_coeff, mail, " \
-        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
-        "firstname < 'А' as isLatin" \
+        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb " \
         "from players " \
         "left join cities using (city_id) " \
         "left join ratelist on player_id=id " \
