@@ -69,7 +69,7 @@ class PlayingRecord:
             player.set('id', str(self.partner[1]))
         else:
             team = et.SubElement(partner, 'team')
-            team.text = str(self.partner[0])
+            team.set('name', str(self.partner[0]))
             for pl in self.partner[1]:
                 player = et.SubElement(team, 'player')
                 player.text = pl[0]
@@ -322,6 +322,7 @@ class TournamentRecordTeam(TournamentRecord):
     def xml(self) -> et.Element:
         result = super().xml
         team = et.SubElement(result, 'team')
+        # team.set('name', self.team)
         team.text = self.team
         for pl in self.players:
             player = et.SubElement(team, 'player')
