@@ -21,7 +21,6 @@ class Queries:
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id)" \
         "where {0};"
-
     select_fullList = \
         "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
@@ -33,7 +32,6 @@ class Queries:
         "left join " + select_mb + "using(player_id) " \
         "where players.state in (1, 2, 4, 5) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
-
     select_rate = \
         "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb " \
@@ -44,6 +42,10 @@ class Queries:
         "left join " + select_mb + "using(player_id) " \
         "where players.state in (1, 2, 4, 5) " \
         "order by rate desc, pb desc, firstname asc"
+    select_find_player = " select player_id as plid, firstname, lastname, surname, city_name " \
+                         "from players left join cities using(city_id) " \
+                         "where state not in (7) and firstname like '%{0}%' " \
+                         "order by firstname, lastname, surname, city_name;"
 
     select_admin = "select year_s as since, year_f as till, position as title, comitee as committee " \
                    "from admin_pos where player_id = {0};"
@@ -60,9 +62,14 @@ class Queries:
     select_other = \
         "select events.event_id as id, event_name as event, year(event_date) as year, position as title " \
         "from events_part left join events using (event_id) where player_id = {0};"
-    select_tourn = "select tourn_id as id, type, name, tour_date as start, tour_date as end, city_name as city " \
+
+    select_tourn = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, " \
+                   "tour_date as end, city_name as city " \
                    "from tourn_header left join cities using (city_id) " \
                    " where tourn_id = {0};"
+    select_all_tourns = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, "  \
+                        "tour_date as end, city_name as city, tounr_pair as parent " \
+                        "from tourn_header left join cities using (city_id) "
     select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
                  "from tourn_ind left join players on team_id = player_id where tour_id = {0};"
     select_pair = \
@@ -87,11 +94,6 @@ class Queries:
         "left join teams using (team_id) " \
         "left join players using (player_id) " \
         "where team_id in (select team_id from tourn_team where tour_id = {0});"
-
-    select_find_player = " select player_id as plid, firstname, lastname, surname, city_name " \
-                         "from players left join cities using(city_id) " \
-                         "where state not in (7) and firstname like '%{0}%' " \
-                         "order by firstname, lastname, surname, city_name;"
 
 
 class Helper:
@@ -362,5 +364,11 @@ class BaseIFace:
                 result.append(player)
         return result
 
-    def loadRateList(self):
-        pass
+    def loadTournList(self):
+        result = []
+        sql = Queries.select_all_tourns
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute(sql)
+            for record in cursor.fetchall():
+                result.append(Tournament(**record))
+        return result

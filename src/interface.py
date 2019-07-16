@@ -1,6 +1,7 @@
 import lxml.etree as et
 import datetime
 
+
 class PlayingRecord:
     allowed_fields = ['id', 'year', 'name', 'partner', 'placel', 'placeh', 'pb', 'ro', 'mb', 'champ_t', 'type']
 
@@ -322,8 +323,7 @@ class TournamentRecordTeam(TournamentRecord):
     def xml(self) -> et.Element:
         result = super().xml
         team = et.SubElement(result, 'team')
-        # team.set('name', self.team)
-        team.text = self.team
+        team.set('name', self.team)
         for pl in self.players:
             player = et.SubElement(team, 'player')
             player.set('id', str(pl[1]))
@@ -337,7 +337,7 @@ class TournamentRecordTeam(TournamentRecord):
 
 
 class Tournament:
-    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city']
+    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'parent']
     types = {1: "Individual", 2: "Pair", 3: "Team", "4": "Session", 5: "Club", 6: "Festival"}
 
     def __init__(self, **kwargs):
@@ -347,6 +347,7 @@ class Tournament:
         self.start = None
         self.end = None
         self.city = None
+        self.parent = None
         self.nested = []
         self.participants = []
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
@@ -377,6 +378,20 @@ class Tournament:
         else:
             tournament.text = "Tournament not found"
         return tournament
+
+    @property
+    def xmlShort(self) -> et.Element:
+        result = et.Element('tournament')
+        result.set('id', str(self.id))
+        if self.parent:
+            result.set('parent', str(self.parent))
+        if self.id:
+            for field in ['name', 'city', 'start', 'end']:
+                locals()[field] = et.SubElement(result, field)
+                locals()[field].text = str(self.__dict__[field])
+        else:
+            result.text = "Tournament not found"
+        return result
 
 
 class RateRecord:

@@ -37,7 +37,16 @@ def players_form():
 @app.route('/tourns/<int:tournament_id>/xml/')
 def tournament_xml(tournament_id):
     start_time = time.perf_counter()
-    res = getTornamentXml(tournament_id)
+    res = getTournamentXml(tournament_id)
+    res.set('generated', str(time.perf_counter() - start_time))
+    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
+
+@app.route('/tourns/')
+@app.route('/tourns/xml/')
+def tournament_list_xml():
+    start_time = time.perf_counter()
+    res = getTournamentList()
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
 
