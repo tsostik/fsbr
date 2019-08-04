@@ -244,7 +244,8 @@ class BaseIFace:
                 cursor.execute(sql)
                 record = cursor.fetchone()
                 if record:
-                    pl.setExternalIds(record['wbf_id'], record['acbl_id'], record['gambler_nick'], record['bbo_nick'])
+                    pl.setExternalIds(record['wbf_id'] + 20000, record['acbl_id'],
+                                      record['gambler_nick'], record['bbo_nick'])
 
     def loadPlayers(self):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
