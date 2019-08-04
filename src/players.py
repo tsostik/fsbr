@@ -8,6 +8,7 @@ def getPlayerXml(player_id):
         base.loadAdminPos(player)
         base.loadDirecting(player)
         base.loadOtherRecords(player)
+        base.loadExternalIDs(player)
     return player.xml
 
 

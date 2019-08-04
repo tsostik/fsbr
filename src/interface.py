@@ -159,6 +159,10 @@ class Player:
         self.directing = []
         self.results = []
         self.other = []
+        self.wbf_id = None
+        self.acbl_id = None
+        self.gambler_nick = None
+        self.bbo_nick = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ':
             self.firstname = ''
@@ -189,6 +193,18 @@ class Player:
         """
         self.other.append(record)
 
+    def setExternalIds(self, wbf_id, acbl_id, gambler_nick, bbo_nick):
+        """
+        :type wbf_id: int
+        :type acbl_id: int
+        :type gambler_nick: str
+        :type bbo_nick: str
+        """
+        self.wbf_id = wbf_id
+        self.acbl_id = acbl_id
+        self.gambler_nick = gambler_nick
+        self.bbo_nick = bbo_nick
+
     @property
     def xml(self) -> et.Element:
         player_record = et.Element('player')
@@ -216,6 +232,21 @@ class Player:
 
             if self.razr_temp:
                 locals()['razr'].set('temp', '1')
+
+            if self.wbf_id or self.acbl_id or self.gambler_nick or self.bbo_nick:
+                ext = et.SubElement(player_record, 'IDs')
+                if self.wbf_id:
+                    wbf = et.SubElement(ext, "WBF")
+                    wbf.set('id', str(self.wbf_id))
+                if self.acbl_id:
+                    acbl = et.SubElement(ext, "ACBL")
+                    acbl.set('id', str(self.acbl_id))
+                if self.gambler_nick:
+                    gambler = et.SubElement(ext, "Gambler")
+                    gambler.set('nick', str(self.gambler_nick))
+                if self.bbo_nick:
+                    bbo = et.SubElement(ext, "BBO")
+                    bbo.set('nick', str(self.bbo_nick))
 
             if self.results:
                 results = et.SubElement(player_record, 'results')
