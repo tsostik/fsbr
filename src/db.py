@@ -34,7 +34,7 @@ class Queries:
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
     select_rate = \
         "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
-        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb " \
+        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb, 0 as mb, 0 as emb " \
         "from ratelist " \
         "left join players on player_id=id " \
         "left join cities using (city_id) " \
