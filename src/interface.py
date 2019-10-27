@@ -377,7 +377,7 @@ class TournamentRecordTeam(TournamentRecord):
 
 class Tournament:
     allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'parent']
-    types = {1: "Individual", 2: "Pair", 3: "Team", "4": "Session", 5: "Club", 6: "Festival"}
+    types = {1: "Individual", 2: "Pair", 3: "Team", 4: "Session", 5: "Club", 6: "Festival"}
 
     def __init__(self, **kwargs):
         self.id = None
@@ -488,10 +488,9 @@ class RateRecord:
         if self.razr_temp:
             razr.set('temp', '1')
         mb = et.SubElement(result, 'mb')
-        mb.text = str(self.mb + self.emb)
-        if self.emb > 0:
-            emb = et.SubElement(mb, 'online')
-            emb.text = str(self.emb)
+        mb.text = str(self.mb)
+        emb = et.SubElement(result, 'emb')
+        emb.text = str(self.emb)
         pb = et.SubElement(result, 'pb')
         pb.text = str(self.pb)
         rate = et.SubElement(result, 'rate')
