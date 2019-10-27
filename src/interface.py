@@ -258,7 +258,8 @@ class Player:
             if self.results:
                 results = et.SubElement(player_record, 'results')
                 for rec in self.results:
-                    results.append(rec.xml)
+                    if(rec.placeh > 0):
+                        results.append(rec.xml)
 
             if self.positions:
                 admin = et.SubElement(player_record, 'administrative')
