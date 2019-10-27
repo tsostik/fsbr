@@ -371,7 +371,9 @@ class BaseIFace:
                                     razr=razr,
                                     razr_temp=razr_temp,
                                     rate=record['rate'],
-                                    pb=record['pb'])
+                                    pb=record['pb'],
+                                    mb=record['mb'],
+                                    emb=record['emb'])
                 result.append(player)
         return result
 

@@ -1,5 +1,6 @@
 import lxml.etree as et
 import datetime
+import os
 
 
 class PlayingRecord:
@@ -25,21 +26,23 @@ class PlayingRecord:
         :rtype: Bool
         """
         result = False
-        if self.champ_t <= 10 and self.champ_t != 3:
+        if self.champ_t == 3 and self.placeh <= 3: # "Прочий" чемпионат, призовое место
+            result = True
+        elif self.champ_t <= 10:
             pass
         elif self.champ_t > 1000 and self.placeh <= 3:  # Региональный чемпионат, призовое место
             result = True
-        elif self.champ_t <= 29 and self.placeh <= 3:  # Малый чемпионат России, призовое место
+        elif (20 <= self.champ_t <= 29) and self.placeh <= 3:  # Малый чемпионат России, призовое место
             result = True
         elif self.champ_t == 31 and self.placeh <= 5:  # КЧР, места 1 - 5
             result = True
         elif (self.champ_t == 32 or self.champ_t == 33) and self.placeh <= 10:  # ПЧР или ПЧР-ИМП, места 1-10
             result = True
-        elif (
-                40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:  # Парный чемпионат Европы или Мира, места 1-10
+        elif (90 <= self.champ_t < 100) and self.placeh <= 3:  # Неквалифицируемые чемпионаты Европы и Мира
             result = True
-        elif (
-                40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:  # Командный чемпионат Европы или Мира, места 1-10
+        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:  # Парный чемпионат Европы или Мира, места 1-10
+            result = True
+        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:  # Командный чемпионат Европы или Мира, места 1-8
             result = True
         return result
 
@@ -218,6 +221,10 @@ class Player:
             if hasattr(self.birthdate, "strftime"):
                 birthdate = et.SubElement(info, 'birthdate')
                 birthdate.text = self.birthdate.strftime("%Y-%m-%d")
+            photo_url = f'foto/{self.id}.jpg'
+            if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
+                photo = et.SubElement(info, 'photo')
+                photo.set('url', 'http://bridgesport.ru/players/' + photo_url)
 
             sportlevel = et.SubElement(player_record, 'sportlevel')
             for field in ['razr', 'pb', 'rate']:

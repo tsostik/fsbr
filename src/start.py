@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template
+from flask import Flask, Response, render_template, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 from src.players import *
 from src.tournaments import *
