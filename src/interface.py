@@ -240,6 +240,16 @@ class Player:
             if self.razr_temp:
                 locals()['razr'].set('temp', '1')
 
+            rstat = et.SubElement(player_record, 'stat')
+            position = et.SubElement(rstat, 'RateRank')
+            position.text="0"
+            bestpos = et.SubElement(rstat, 'BestRateRank')
+            bestpos.set('date', "0000-00-00")
+            bestpos.text="0"
+            bestrate = et.SubElement(rstat, 'BestRate')
+            bestrate.set('date', "0000-00-00")
+            bestrate.text="0"
+
             if self.wbf_id or self.acbl_id or self.gambler_nick or self.bbo_nick:
                 ext = et.SubElement(player_record, 'IDs')
                 if self.wbf_id:
