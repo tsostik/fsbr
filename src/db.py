@@ -244,7 +244,7 @@ class BaseIFace:
                 cursor.execute(sql)
                 record = cursor.fetchone()
                 if record:
-                    pl.setExternalIds(record['wbf_id'] + 20000, record['acbl_id'],
+                    pl.setExternalIds(record['wbf_id'] + 20000 if record['wbf_id'] else None, record['acbl_id'],
                                       record['gambler_nick'], record['bbo_nick'])
 
     def loadPlayers(self):

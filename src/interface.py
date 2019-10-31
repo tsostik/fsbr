@@ -242,13 +242,13 @@ class Player:
 
             rstat = et.SubElement(player_record, 'stat')
             position = et.SubElement(rstat, 'RateRank')
-            position.text="0"
+            position.text = "0"
             bestpos = et.SubElement(rstat, 'BestRateRank')
             bestpos.set('date', "0000-00-00")
-            bestpos.text="0"
+            bestpos.text = "0"
             bestrate = et.SubElement(rstat, 'BestRate')
             bestrate.set('date', "0000-00-00")
-            bestrate.text="0"
+            bestrate.text = "0"
 
             if self.wbf_id or self.acbl_id or self.gambler_nick or self.bbo_nick:
                 ext = et.SubElement(player_record, 'IDs')
@@ -260,15 +260,17 @@ class Player:
                     acbl.set('id', str(self.acbl_id))
                 if self.gambler_nick:
                     gambler = et.SubElement(ext, "Gambler")
-                    gambler.set('nick', str(self.gambler_nick))
+                    gamblernick = et.SubElement(gambler, 'nick')
+                    gamblernick.text = str(self.gambler_nick)
                 if self.bbo_nick:
                     bbo = et.SubElement(ext, "BBO")
-                    bbo.set('nick', str(self.bbo_nick))
+                    bbonick = et.SubElement(bbo, 'nick')
+                    bbonick.text = str(self.bbo_nick)
 
             if self.results:
                 results = et.SubElement(player_record, 'results')
                 for rec in self.results:
-                    if(rec.placeh > 0):
+                    if rec.placeh > 0:
                         results.append(rec.xml)
 
             if self.positions:
