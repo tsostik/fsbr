@@ -26,7 +26,7 @@ class PlayingRecord:
         :rtype: Bool
         """
         result = False
-        if self.champ_t == 3 and self.placeh <= 3: # "Прочий" чемпионат, призовое место
+        if self.champ_t == 3 and self.placeh <= 3:  # "Прочий" чемпионат, призовое место
             result = True
         elif self.champ_t <= 10:
             pass
@@ -40,9 +40,11 @@ class PlayingRecord:
             result = True
         elif (90 <= self.champ_t < 100) and self.placeh <= 3:  # Неквалифицируемые чемпионаты Европы и Мира
             result = True
-        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:  # Парный чемпионат Европы или Мира, места 1-10
+        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:
+            # Парный чемпионат Европы или Мира, места 1-10
             result = True
-        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:  # Командный чемпионат Европы или Мира, места 1-8
+        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:
+            # Командный чемпионат Европы или Мира, места 1-8
             result = True
         return result
 
@@ -143,7 +145,8 @@ class AdminPos:
 
 class Player:
     allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'city', 'mail',
-                      'razr', 'razr_temp', 'pb', 'rate', 'mb', 'emb']
+                      'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb'
+                      'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt']
 
     def __init__(self, **kwargs):
         self.id = None
@@ -166,6 +169,11 @@ class Player:
         self.acbl_id = None
         self.gambler_nick = None
         self.bbo_nick = None
+        self.rate_rank = None
+        self.best_rate = None
+        self.best_rate_dt = None
+        self.best_rank = None
+        self.best_rank_dt = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ':
             self.firstname = ''
@@ -232,8 +240,8 @@ class Player:
                 locals()[field].text = str(self.__dict__[field])
 
             mb = et.SubElement(sportlevel, 'mb')
-            mb.text = str(self.mb + self.emb)
-            if self.emb > 0:
+            mb.text = str(self.mb + self.emb if self.emb else 0)
+            if self.emb:
                 emb = et.SubElement(sportlevel, 'emb')
                 emb.text = str(self.emb)
 
@@ -242,13 +250,20 @@ class Player:
 
             rstat = et.SubElement(player_record, 'stat')
             position = et.SubElement(rstat, 'RateRank')
-            position.text = "0"
+            if self.rate_rank:
+                position.text = str(self.rate_rank)
+            else:
+                position.text = "-"
             bestpos = et.SubElement(rstat, 'BestRateRank')
-            bestpos.set('date', "0000-00-00")
-            bestpos.text = "0"
             bestrate = et.SubElement(rstat, 'BestRate')
-            bestrate.set('date', "0000-00-00")
-            bestrate.text = "0"
+            if self.best_rank:
+                bestpos.set('date', self.best_rank_dt.strftime("%Y-%m-%d"))
+                bestpos.text = str(self.best_rank)
+                bestrate.set('date', self.best_rate_dt.strftime("%Y-%m-%d"))
+                bestrate.text = str(self.best_rate)
+            else:
+                bestpos.text = "-"
+                bestrate.text = "-"
 
             if self.wbf_id or self.acbl_id or self.gambler_nick or self.bbo_nick:
                 ext = et.SubElement(player_record, 'IDs')
