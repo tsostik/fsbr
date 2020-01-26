@@ -216,6 +216,12 @@ class Player:
         self.gambler_nick = gambler_nick
         self.bbo_nick = bbo_nick
 
+    def setRateStat(self, best_rate, best_rate_date, best_rank, best_rank_date):
+        self.best_rate = best_rate
+        self.best_rate_dt = best_rate_date
+        self.best_rank = best_rank
+        self.best_rank_dt = best_rank_date
+
     @property
     def xml(self) -> et.Element:
         player_record = et.Element('player')
@@ -240,7 +246,7 @@ class Player:
                 locals()[field].text = str(self.__dict__[field])
 
             mb = et.SubElement(sportlevel, 'mb')
-            mb.text = str(self.mb + self.emb if self.emb else 0)
+            mb.text = str(self.mb + (self.emb if self.emb else 0))
             if self.emb:
                 emb = et.SubElement(sportlevel, 'emb')
                 emb.text = str(self.emb)

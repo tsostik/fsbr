@@ -128,6 +128,16 @@ class BaseIFace:
                     pl.setExternalIds(record['wbf_id'] + 20000 if record['wbf_id'] else None, record['acbl_id'],
                                       record['gambler_nick'], record['bbo_nick'])
 
+    def loadRateStat(self, pl: Player):
+        if pl.id:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = Queries.select_rate_stat.format(pl.id)
+                cursor.execute(sql)
+                record = cursor.fetchone()
+                if record:
+                    pl.setRateStat(record['best_rate'], record['best_rate_date'],
+                                   record['best_rank'], record['best_rank_date'])
+
     def loadPlayers(self):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = Queries.select_player.format("state in (1, 2, 4, 5)")

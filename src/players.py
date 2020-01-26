@@ -9,6 +9,7 @@ def getPlayerXml(player_id):
         base.loadDirecting(player)
         base.loadOtherRecords(player)
         base.loadExternalIDs(player)
+        base.loadRateStat(player)
     return player.xml
 
 

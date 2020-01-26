@@ -1,3 +1,7 @@
+import datetime
+from typing import List
+
+
 class Helper:
     """
     Several common helper functions
@@ -25,3 +29,16 @@ class Helper:
             result += fathername[0]
         result += '.'
         return result
+
+    @staticmethod
+    def getDate(target: datetime.date, available: List[datetime.date]) -> datetime.date:
+        """
+        :param target: requested date
+        :param available: list of dates available
+        :return: the appropriate date from he list
+        """
+        src: List[datetime.date] = sorted(available)
+        if target < src[0]:
+            return src[0]
+
+        return next(d for d in reversed(src) if d <= target)

@@ -13,27 +13,9 @@ def getFullList():
     return result
 
 
-def getRateDate(dt: datetime.date, base: BaseIFace) -> datetime:
-    result = None
-    if dt is None:
-        result = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
-    else:
-        dates_available = base.loadRateDates()
-        if dt >= dates_available[0]:
-            result = dates_available[0]
-        elif dt <= dates_available[-1]:
-            result = dates_available[-1]
-        else:
-            for day in dates_available:
-                if day<= dt:
-                    result = day
-                    break
-    return result
-
-
 def getRate(dt: datetime.date):
     with BaseIFace() as base:
-        dt_load = getRateDate(dt, base)
+        dt_load = Helper.getDate(dt, base.loadRateDates())
         pl_list = base.loadRate(dt_load)
         result = et.Element('rate')
         result.set('date', dt_load .strftime('%Y-%m-%d'))
