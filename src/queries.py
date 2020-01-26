@@ -106,3 +106,11 @@ class Queries:
         "where tour_id = {0};"
 
     select_rate_dates = "select distinct r_date from rate_history order by r_date desc;"
+
+    select_rate_stat = \
+        "select " \
+        "  srt.player_id as player_id, srt.r_date as best_rate_date, srt.rate as best_rate, " \
+        "  srk.r_date as best_rank_date, srk.place as best_rank " \
+        "from " \
+        "  (select * from rate_history where player_id = {0} order by rate desc limit 1) as srt, " \
+        "  (select * from rate_history where player_id = {0} order by place asc limit 1) as srk;"
