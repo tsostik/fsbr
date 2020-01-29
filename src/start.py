@@ -33,6 +33,21 @@ def players_form():
     return "Show user form"
 
 
+@app.route('/tourns/rate/')
+@app.route('/tourns/rate/<int:year>/')
+@app.route('/rate/tourns/')
+@app.route('/rate/tourns/<int:year>/')
+@app.route('/tourns/rate/xml/')
+@app.route('/tourns/rate/<int:year>/xml/')
+@app.route('/rate/tourns/xml/')
+@app.route('/rate/tourns/<int:year>/xml/')
+def rate_tournaments(year: int = 0):
+    start_time = time.perf_counter()
+    res = getRateTourns(year)
+    res.set('generated', str(time.perf_counter() - start_time))
+    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
+
 @app.route('/tourns/<int:tournament_id>/')
 @app.route('/tourns/<int:tournament_id>/xml/')
 def tournament_xml(tournament_id):
@@ -64,7 +79,7 @@ def fullList_xml():
 @app.route('/rate/xml/')
 @app.route('/rate/<rdate>/')
 @app.route('/rate/<rdate>/xml/')
-def rate_xml(rdate: str=None):
+def rate_xml(rdate: str = None):
     start_time = time.perf_counter()
     if rdate is None:
         dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)

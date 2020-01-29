@@ -2,6 +2,7 @@ import pymysql.cursors
 from src.interface import *
 from src.queries import Queries
 from src.helper import Helper
+from src.RateTours import RateTournaments
 
 
 class BaseIFace:
@@ -170,6 +171,12 @@ class BaseIFace:
                 cursor.execute(sql)
                 for record in cursor.fetchall():
                     tourn.nested.append(Tournament(**record))
+                if tourn.parent_id is not None and tourn.parent_id > 0:
+                    sql = Queries.select_tourn.format(tourn.parent_id)
+                    cursor.execute(sql)
+                    parent = cursor.fetchone()
+                    if parent:
+                        tourn.parent_name = parent['name']
             else:
                 tourn = Tournament()
         return tourn
@@ -324,4 +331,16 @@ class BaseIFace:
             cursor.execute(sql)
             for record in cursor.fetchall():
                 result.append(record['r_date'])
+        return result
+
+    def loadRateTourns(self, year: int) -> RateTournaments:
+        # Load rate tournaments for specified year
+        result = RateTournaments(year)
+        sql = Queries.select_rate_tourns.format(year)
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute(sql)
+            for record in cursor.fetchall():
+                result.addRecord(record['tid'], record['name'], record['player_id'],
+                                 Helper.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
+                                 record['placeh'], record['placel'], record['pb'], record['ro'])
         return result

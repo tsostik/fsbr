@@ -66,7 +66,7 @@ class Queries:
         "from events_part left join events using (event_id) where player_id = {0};"
 
     select_tourn = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, " \
-                   "tour_date as end, city_name as city " \
+                   "tour_date as end, city_name as city, tounr_pair as parent_id " \
                    "from tourn_header left join cities using (city_id) " \
                    " where tourn_id = {0};"
     select_all_tourns = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, "  \
@@ -114,3 +114,11 @@ class Queries:
         "from " \
         "  (select * from rate_history where player_id = {0} order by rate desc limit 1) as srt, " \
         "  (select * from rate_history where player_id = {0} order by place asc limit 1) as srk;"
+
+    select_rate_tourns = \
+        "select results.tourn_id as tid, player_id, name, placeh, placel, ro, pb, " \
+        "firstname, lastname, surname " \
+        "from results left join tourn_header using (tourn_id) " \
+        "left join players using (player_id)" \
+        "where ro > 0 and results.tour_date between {0}0101 and {0}1231 " \
+        "order by results.tour_date asc, results.tourn_id asc, placeh asc, placel asc"

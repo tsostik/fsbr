@@ -84,6 +84,7 @@ class PlayingRecord:
 
 
 class OtherPos:
+    # "Other event" position for one player
     allowed_fields = ['id', 'year', 'event', 'title']
 
     def __init__(self, **kwargs):
@@ -104,6 +105,7 @@ class OtherPos:
 
 
 class TdPos:
+    # Directing position for one player
     allowed_fields = ['id', 'tournament', 'date', 'title']
 
     def __init__(self, **kwargs):
@@ -124,6 +126,7 @@ class TdPos:
 
 
 class AdminPos:
+    # Administrative position for one player
     allowed_fields = ['since', 'till', 'committee', 'title']
 
     def __init__(self, **kwargs):
@@ -144,9 +147,11 @@ class AdminPos:
 
 
 class Player:
+    # Full data for player history
     allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'city', 'mail',
                       'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb'
-                      'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt']
+                                                                            'best_rate', 'best_rate_dt', 'best_rank',
+                      'best_rank_dt']
 
     def __init__(self, **kwargs):
         self.id = None
@@ -314,6 +319,7 @@ class Player:
 
 
 class TournamentRecord:
+    # Tournament record in player's history
     allowed_fields = ['placeh', 'placel', 'result', 'pb', 'ro', 'mb']
 
     def __init__(self, **kwargs):
@@ -409,7 +415,8 @@ class TournamentRecordTeam(TournamentRecord):
 
 
 class Tournament:
-    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'parent']
+    # Full data of a tournament result
+    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'parent_id']
     types = {1: "Individual", 2: "Pair", 3: "Team", 4: "Session", 5: "Club", 6: "Festival"}
 
     def __init__(self, **kwargs):
@@ -419,7 +426,8 @@ class Tournament:
         self.start = None
         self.end = None
         self.city = None
-        self.parent = None
+        self.parent_id = None
+        self.parent_name = None
         self.nested = []
         self.participants = []
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
@@ -439,6 +447,10 @@ class Tournament:
                     nested_tournament = et.SubElement(nested, 'tournament')
                     nested_tournament.set('id', str(child.id))
                     nested_tournament.text = str(child.name)
+            if self.parent_id:
+                parent = et.SubElement(tournament, 'parent')
+                parent.set('id', str(self.parent_id))
+                parent.text = self.parent_name
             info = et.SubElement(tournament, 'info')
             for field in ['name', 'city', 'start', 'end']:
                 locals()[field] = et.SubElement(info, field)
@@ -467,6 +479,7 @@ class Tournament:
 
 
 class RateRecord:
+    # One record in full list or rate list
     allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'city',
                       'razr', 'razr_temp', 'pb', 'rate', 'mb', 'emb']
 
