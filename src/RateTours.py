@@ -65,7 +65,7 @@ class RateTournaments:
 
     @property
     def xml(self) -> et.Element:
-        tournaments: et.Element = et.Element('Tournaments')
+        tournaments: et.Element = et.Element('tournaments')
         tournaments.set('year', str(self.year))
         for rec in self.tournaments:
             tournaments.append(rec.xml)
