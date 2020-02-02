@@ -22,13 +22,3 @@ def getRate(dt: datetime.date):
         for player in pl_list:
             result.append(player.xmlRate)
     return result
-
-
-def getRateTourns(year):
-    if year == 0:
-        year = datetime.date.today().year
-        if datetime.date.today().month == 1:
-            year -= 1
-    with BaseIFace() as base:
-        result = base.loadRateTourns(year)
-    return result.xml

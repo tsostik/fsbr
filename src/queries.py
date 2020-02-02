@@ -122,3 +122,10 @@ class Queries:
         "left join players using (player_id)" \
         "where ro > 0 and results.tour_date between {0}0101 and {0}1231 " \
         "order by results.tour_date asc, results.tourn_id asc, placeh asc, placel asc"
+
+    select_razr_change = \
+        "select player_id, firstname as lastname, lastname as firstname, surname as fathername, " \
+        "old_razr, new_razr, razr_coeff as coeff " \
+        "from razr_change left join players using (player_id) left join cities using (city_id) " \
+        "where date = %s " \
+        "order by get_razr_num(new_razr, cities.city_id), get_razr_num(old_razr, cities.city_id) desc, old_razr desc"

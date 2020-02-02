@@ -20,6 +20,11 @@ class Helper:
         return result, is_tmp
 
     @staticmethod
+    def getRazrStr(db_razr, coeff):
+        (rz, isTmp) = Helper.getRazr(db_razr, coeff)
+        return str(rz) + ('*' if isTmp else '')
+
+    @staticmethod
     def shortPlayerName(lastname, firstname, fathername):
         result = (lastname if lastname else "") + ' '
         if firstname and firstname != '' and firstname != 'Щ':

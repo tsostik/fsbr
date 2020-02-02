@@ -3,6 +3,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from src.players import *
 from src.tournaments import *
 from src.rate import *
+from src.service import *
 import lxml.etree as et
 import time
 
@@ -89,6 +90,24 @@ def rate_xml(rdate: str = None):
         except ValueError:
             dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
     res = getRate(dt)
+    res.set('generated', str(time.perf_counter() - start_time))
+    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
+
+@app.route('/misc/razrchange/')
+@app.route('/misc/razrchange/xml/')
+@app.route('/misc/razrchange/<date>/')
+@app.route('/misc/razrchange/<date>/xml/')
+def razr_change(date: str = None):
+    start_time = time.perf_counter()
+    if date is None:
+        dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
+    else:
+        try:
+            dt = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        except ValueError:
+            dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
+    res = getRazrChange(dt)
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
 

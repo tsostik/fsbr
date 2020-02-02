@@ -3,6 +3,8 @@ from src.interface import *
 from src.queries import Queries
 from src.helper import Helper
 from src.RateTours import RateTournaments
+from src.misc import RazrChange
+from typing import List
 
 
 class BaseIFace:
@@ -343,4 +345,13 @@ class BaseIFace:
                 result.addRecord(record['tid'], record['name'], record['player_id'],
                                  Helper.shortPlayerName(record['firstname'], record['lastname'], record['surname']),
                                  record['placeh'], record['placel'], record['pb'], record['ro'])
+        return result
+
+    def loadRazrChange(self, date: datetime.date) -> List[RazrChange]:
+        result = []
+        sql = Queries.select_razr_change
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute(sql, date)
+            for record in cursor.fetchall():
+                result.append(RazrChange(**record))
         return result
