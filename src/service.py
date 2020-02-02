@@ -16,6 +16,7 @@ def getRateTourns(year) -> et.Element:
 
 def getRazrChange(date: datetime.date) -> et.Element:
     result: et.Element = et.Element('RazrChange')
+    result.set('date', date.strftime('%Y-%m-%d'))
     with BaseIFace() as base:
         dt_load = Helper.getDate(date, base.loadRateDates())
         rch = base.loadRazrChange(dt_load)
