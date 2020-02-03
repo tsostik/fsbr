@@ -17,7 +17,7 @@ class Helper:
             result = 1.2 if coeff is None else coeff * 0.3
         else:
             result /= 2
-        return result, is_tmp
+        return round(result, 1), is_tmp
 
     @staticmethod
     def getRazrStr(db_razr, coeff):
