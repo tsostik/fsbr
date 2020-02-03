@@ -112,6 +112,15 @@ def razr_change(date: str = None):
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
 
 
+@app.route('/misc/clubs/')
+@app.route('/misc/clubs/xml/')
+def clubs():
+    start_time = time.perf_counter()
+    res = getClubStat()
+    res.set('generated', str(time.perf_counter() - start_time))
+    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
+
 app.wsgi_app = ProxyFix(app.wsgi_app)
 if __name__ == '__main__':
     app.run(debug=True)

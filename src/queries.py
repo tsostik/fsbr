@@ -129,3 +129,8 @@ class Queries:
         "from razr_change left join players using (player_id) left join cities using (city_id) " \
         "where date = %s " \
         "order by get_razr_num(new_razr, cities.city_id), get_razr_num(old_razr, cities.city_id) desc, old_razr desc"
+
+    select_club_stat = \
+        "select club_id, clubs.name as club_name, max(tour_date) as maxdate " \
+        "from tourn_header as t, clubs " \
+        "where t.type=5 and t.city_id = clubs.city_id group by club_id  order by club_id"

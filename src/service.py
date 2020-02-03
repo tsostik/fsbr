@@ -23,3 +23,9 @@ def getRazrChange(date: datetime.date) -> et.Element:
         for player in rch:
             result.append(player.xml)
     return result
+
+
+def getClubStat() -> et.Element:
+    with BaseIFace() as base:
+        result = base.loadClubStat().xml
+    return result

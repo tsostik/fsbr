@@ -1,5 +1,8 @@
 import lxml.etree as et
+import datetime
 from src.helper import Helper
+
+
 # various classes for requests
 
 
@@ -17,4 +20,21 @@ class RazrChange:
         result.set('name', self.player_name)
         result.set('old', self.old)
         result.set('new', self.new)
+        return result
+
+
+class ClubStat:
+    def __init__(self):
+        self.clubs = []
+
+    def add(self, club: str, date: datetime.date):
+        self.clubs.append({'club': club, 'date': date})
+
+    @property
+    def xml(self) -> et.Element:
+        result = et.Element('ClubStat')
+        for record in self.clubs:
+            club = et.SubElement(result, 'club')
+            club.set('name', record['club'])
+            club.set('date', str(record['date']))
         return result

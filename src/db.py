@@ -3,7 +3,7 @@ from src.interface import *
 from src.queries import Queries
 from src.helper import Helper
 from src.RateTours import RateTournaments
-from src.misc import RazrChange
+from src.misc import *
 from typing import List
 
 
@@ -354,4 +354,13 @@ class BaseIFace:
             cursor.execute(sql, date)
             for record in cursor.fetchall():
                 result.append(RazrChange(**record))
+        return result
+
+    def loadClubStat(self) -> ClubStat:
+        result = ClubStat()
+        sql = Queries.select_club_stat
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute(sql)
+            for record in cursor.fetchall():
+                result.add(record['club_name'], record['maxdate'])
         return result
