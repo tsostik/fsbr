@@ -149,9 +149,8 @@ class AdminPos:
 class Player:
     # Full data for player history
     allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'city', 'mail',
-                      'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb'
-                                                                            'best_rate', 'best_rate_dt', 'best_rank',
-                      'best_rank_dt']
+                      'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb',
+                      'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt']
 
     def __init__(self, **kwargs):
         self.id = None
@@ -467,8 +466,8 @@ class Tournament:
     def xmlShort(self) -> et.Element:
         result = et.Element('tournament')
         result.set('id', str(self.id))
-        if self.parent:
-            result.set('parent', str(self.parent))
+        if self.parent_id:
+            result.set('parent', str(self.parent_id))
         if self.id:
             for field in ['name', 'city', 'start', 'end']:
                 locals()[field] = et.SubElement(result, field)
@@ -534,7 +533,7 @@ class RateRecord:
         if self.razr_temp:
             razr.set('temp', '1')
         mb = et.SubElement(result, 'mb')
-        mb.text = str(self.mb)
+        mb.text = str(self.mb + (self.emb if self.emb else 0))
         emb = et.SubElement(result, 'emb')
         emb.text = str(self.emb)
         pb = et.SubElement(result, 'pb')

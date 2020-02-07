@@ -5,9 +5,10 @@ import datetime
 
 def getFullList():
     with BaseIFace() as base:
+        dt_load = Helper.getDate(datetime.date.today(), base.loadRateDates())
         pl_list = base.loadList(1)
         result = et.Element('FullList')
-        result.set('date', datetime.date.today().strftime('%Y-%m-%d'))
+        result.set('date', dt_load.strftime('%Y-%m-%d'))
         for player in pl_list:
             result.append(player.xmlFullList)
     return result
