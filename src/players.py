@@ -19,6 +19,11 @@ def findPlayer(name: str):
     return result
 
 
+def getPlayerInfoJSON(player_id: int):
+    with BaseIFace() as base:
+        player = base.loadPlayerData(player_id)
+    return player.info
+
 """    
     players = base.loadPlayers()
     answer = ET.Element("players")

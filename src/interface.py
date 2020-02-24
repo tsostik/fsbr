@@ -1,6 +1,7 @@
 import lxml.etree as et
 import datetime
 import os
+from src.helper import Helper
 
 
 class PlayingRecord:
@@ -315,6 +316,25 @@ class Player:
         else:
             player_record.text = "Player not found"
         return player_record
+
+    @property
+    def info(self):
+        # short player info to show in hint
+        result = {}
+        if self.lastname:
+            if (self.firstname and len(self.firstname) == 1) or (self.fathername and len(self.fathername) == 1):
+                name = Helper.shortPlayerName(self.lastname, self.firstname, self.fathername)
+            else:
+                name = self.lastname + (' ' + self.firstname if self.firstname else '') +\
+                       (' ' + self.fathername if self.fathername else '')
+            result['name'] = name
+            result['city'] = self.city
+            result['razr'] = self.razr
+            result['rate'] = self.rate
+            photo_url = f'foto/{self.id}.jpg'
+            if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
+                result['photo'] = 'http://bridgesport.ru/players/' + photo_url
+        return result
 
 
 class TournamentRecord:

@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template, url_for
+from flask import Flask, Response, render_template, url_for, jsonify
 from werkzeug.middleware.proxy_fix import ProxyFix
 from src.players import *
 from src.tournaments import *
@@ -23,6 +23,10 @@ def player_xml(player_id):
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
 
+@app.route('/players/<int:player_id>/info/')
+def player_info(player_id):
+    res = getPlayerInfoJSON(player_id)
+    return jsonify(res)
 
 @app.route('/players/<name>/')
 def player_find(name: str):
