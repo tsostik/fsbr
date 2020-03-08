@@ -26,7 +26,9 @@ def player_xml(player_id):
 @app.route('/players/<int:player_id>/info/')
 def player_info(player_id):
     res = getPlayerInfoJSON(player_id)
-    return jsonify(res)
+    resp = jsonify(res)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
 
 @app.route('/players/<name>/')
 def player_find(name: str):

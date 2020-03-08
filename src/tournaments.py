@@ -4,7 +4,7 @@ from src.db import *
 def getTournamentXml(tournament_id):
     with BaseIFace() as base:
         tournament = base.loadTournamentData(tournament_id)
-        if tournament.type == 1:
+        if tournament.type == 1 or tournament.type == 5:
             base.loadIndividualParticipants(tournament)
         elif tournament.type == 2:
             base.loadPairParticipants(tournament)
