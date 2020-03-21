@@ -2,6 +2,7 @@ import lxml.etree as et
 import datetime
 import os
 from src.helper import Helper
+from typing import List
 
 
 class PlayingRecord:
@@ -325,7 +326,7 @@ class Player:
             if (self.firstname and len(self.firstname) == 1) or (self.fathername and len(self.fathername) == 1):
                 name = Helper.shortPlayerName(self.lastname, self.firstname, self.fathername)
             else:
-                name = self.lastname + (' ' + self.firstname if self.firstname else '') +\
+                name = self.lastname + (' ' + self.firstname if self.firstname else '') + \
                        (' ' + self.fathername if self.fathername else '')
             result['name'] = name
             result['city'] = self.city
@@ -582,4 +583,51 @@ class RateRecord:
         for cat in self.categories:
             category = et.SubElement(categories, 'category')
             category.text = cat
+        return result
+
+
+class RateForecastTournRecord:
+    def __init__(self, ro: int, tourn_id: int, tourn_name: str, is_of: bool):
+        self.ro: int = ro
+        self.tourn_id: int = tourn_id
+        self.tourn_name: str = tourn_name
+        self.is_of: bool = is_of
+
+    @property
+    def xml(self):
+        result = et.Element('record')
+        result.text = str(self.ro)
+        result.set('tourn_id', str(self.tourn_id))
+        result.set('tourn', self.tourn_name)
+        if self.is_of:
+            result.set('official', '1')
+        return result
+
+
+class RateForecastRecord:
+    # One player record in rate forecast
+    allowed_fields = ['player_id', 'lastname', 'firstname', 'fathername', 'city']
+
+    def __init__(self, **kwargs):
+        self.player_id: int = 0
+        self.lastname: str = ''
+        self.firstname: str = ''
+        self.fathername: str = ''
+        self.city: str = ''
+        self.rate: int = 0
+        self.rate_records: List[RateForecastTournRecord] = []
+        self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
+
+    def addRecord(self, ro: int, tourn_id: int, tourn_name: str, is_of: bool):
+        self.rate_records.append(RateForecastTournRecord(ro, tourn_id, tourn_name, is_of))
+
+    @property
+    def xml(self):
+        result = et.Element('player')
+        result.set('id', str(self.player_id))
+        result.set('name', Helper.shortPlayerName(self.lastname, self.firstname, self.fathername))
+        result.set('city', self.city)
+        result.set('rate', str(self.rate))
+        for rateRec in self.rate_records:
+            result.append(rateRec.xml)
         return result

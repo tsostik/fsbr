@@ -23,12 +23,14 @@ def player_xml(player_id):
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
 
+
 @app.route('/players/<int:player_id>/info/')
 def player_info(player_id):
     res = getPlayerInfoJSON(player_id)
     resp = jsonify(res)
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
+
 
 @app.route('/players/<name>/')
 def player_find(name: str):
@@ -96,6 +98,15 @@ def rate_xml(rdate: str = None):
         except ValueError:
             dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
     res = getRate(dt)
+    res.set('generated', str(time.perf_counter() - start_time))
+    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
+
+@app.route('/rate/forecast/')
+@app.route('/rate/forecast/xml/')
+def rate_forecast_xml():
+    start_time = time.perf_counter()
+    res = getRateForecast()
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
 

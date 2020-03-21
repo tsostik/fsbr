@@ -23,3 +23,16 @@ def getRate(dt: datetime.date):
         for player in pl_list:
             result.append(player.xmlRate)
     return result
+
+
+def getRateForecast():
+    with BaseIFace() as base:
+        result = et.Element('RateForecast')
+        players = base.loadRateForecast()
+        rk: int = 0
+        for player in players:
+            rk += 1
+            pxml = player.xml
+            pxml.set('rank', str(rk))
+            result.append(pxml)
+    return result

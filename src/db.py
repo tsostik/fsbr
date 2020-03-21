@@ -4,7 +4,7 @@ from src.queries import Queries
 from src.helper import Helper
 from src.RateTours import RateTournaments
 from src.misc import *
-from typing import List
+from typing import List, Dict
 
 
 class BaseIFace:
@@ -316,6 +316,26 @@ class BaseIFace:
                                     emb=record['emb'])
                 result.append(player)
         return result
+
+    def loadRateForecast(self):
+        result: Dict[int, RateForecastRecord] = {}
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = Queries.select_rate_forecast
+            cursor.execute(sql)
+            for record in cursor.fetchall():
+                if record['player_id'] not in result:
+                    result[record['player_id']] = \
+                        RateForecastRecord(player_id=record['player_id'],
+                                           lastname=record['firstname'],
+                                           firstname=record['lastname'],
+                                           fathername=record['surname'],
+                                           city=record['city_name'])
+                if record['tourn_id']:
+                    result[record['player_id']].addRecord(record['r'], record['tourn_id'], record['tourn_name'],
+                                                          record['is_of'] != 0)
+                else:
+                    result[record['player_id']].rate = record['r']
+        return sorted(result.values(), key=lambda x: x.rate, reverse=True)
 
     def loadTournList(self):
         result = []

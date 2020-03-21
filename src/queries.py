@@ -134,3 +134,10 @@ class Queries:
         "select club_id, clubs.name as club_name, max(tour_date) as maxdate " \
         "from tourn_header as t, clubs " \
         "where t.type=5 and t.city_id = clubs.city_id group by club_id  order by club_id"
+
+    select_rate_forecast = \
+        "select player_id, firstname, lastname, surname, city_name, name as tourn_name, tourn_id, " \
+        "num, is_of, r " \
+        "from rate_forecast left join players using (player_id) left join cities using (city_id) " \
+        "left join tourn_header using (tourn_id) " \
+        "order by player_id asc, num asc"
