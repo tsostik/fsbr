@@ -141,3 +141,15 @@ class Queries:
         "from rate_forecast left join players using (player_id) left join cities using (city_id) " \
         "left join tourn_header using (tourn_id) " \
         "order by player_id asc, num asc"
+
+    select_max_id = "select p, n from " \
+                    "(select player_id as p from players order by player_id desc limit 1, 1) as s1, " \
+                    "(select max(new_id) as n from fsbr_aux.new_players) as s2"
+
+    is_id_available = "select if(m+a>=1, 0, 1) as ok from " \
+                      "(select count(1) as m from players where player_id={0}) as s1, " \
+                      "(select count(1) as a from fsbr_aux.new_players where new_id={0}) as s2"
+
+    add_new_player = "insert into fsbr_aux.new_players (`new_id`, `firstname`, `lastname`, `surname`, " \
+                     "`sex`, `birthdate`, `sputnik`, `sputnik_first`, `author`, `Note`) values " \
+                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"

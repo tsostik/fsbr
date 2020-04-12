@@ -2,10 +2,13 @@
 Include/*
 Lib/*
 LICENSE.txt
+sqlite3.exe
 Scripts/*
 tcl/*
 src/__pycache__
 src/src
 src/static/foto
+src/users.sqlite
+src/settings.py
 __pycache__
 wsgi.py

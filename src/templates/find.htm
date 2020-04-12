@@ -1,14 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Результаты поиска игрока</title>
-</head>
-<body>
-{#% if results %#}
-    <table>{% for player in players %}
-        <tr>{% for col in player %}<td>{{col}}</td>{% endfor %}
-    {% endfor %}</table>
-{#% endif %#}
-</body>
-</html>
+{% extends 'base.htm' %}
+{% block title %}
+<title>Результаты поиска игрока</title>
+{% endblock %}
+{% block content %}
+<section id="search">
+	Введите фамилию или её часть не менее двух символов
+	<form method="post" action="{{url_for('find_player')}}">
+		<input type=text name="name">
+		<input type=Submit value=Поиск>
+    </form>
+</section>
+<section id="results">
+{% if players %}
+    <div>По вашему запросу найдены следующие игроки</div>
+    <table>
+    {% for player in players %}
+        <tr>
+        {% for col in player %}
+            <td><a href='{{url_for("player_xml", player_id=player[0])}}'>{{col}}</a></td>
+        {% endfor %}
+    {% endfor %}
+    </table>
+{% else %}
+    {% if name %}<p>Игроков по вашему запросу не найдено</p>{% endif %}
+{% endif %}
+</section>
+{% if has_permission(current_user, 'AddPlayers') %}
+<section id="add">
+    <a href="{{url_for('add_player')}}"><button>Добавить игрока</button></a>
+</section>
+{% endif %}
+{% endblock %}

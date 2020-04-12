@@ -150,15 +150,16 @@ class AdminPos:
 
 class Player:
     # Full data for player history
-    allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'city', 'mail',
+    allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'sex', 'city', 'mail',
                       'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb',
-                      'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt']
+                      'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt', 'is_sputnik', 'sputnik_first']
 
     def __init__(self, **kwargs):
         self.id = None
         self.lastname = None
         self.firstname = None
         self.fathername = None
+        self.sex = None
         self.birthdate = None
         self.city = None
         self.razr = None
@@ -180,6 +181,9 @@ class Player:
         self.best_rate_dt = None
         self.best_rank = None
         self.best_rank_dt = None
+        self.is_sputnik: bool = False
+        self.sputnik_first = None
+
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ':
             self.firstname = ''

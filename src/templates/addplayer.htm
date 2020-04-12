@@ -1,0 +1,54 @@
+{% extends 'base.htm' %}
+{% block title %}
+<title>Добавление игрока</title>
+{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+{% endblock %}
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="{{url_for('static', filename='jquery-ui.min.js')}}"></script>
+<script>
+$(function() {
+	$(".dtpick").datepicker(
+		 {dateFormat:'yy/mm/dd',
+		 buttonImage:'{{url_for("static", filename="calendar.svg")}}',
+		 buttonImageOnly: true,
+		 showOn: 'button'});
+	$( ".dtpick#birthdate" ).datepicker( "option",
+	    {"yearRange": "-70:-10",
+	    "changeYear": true,
+	    "changeMonth": true});
+	$( ".dtpick#sputnik_first" ).datepicker( "option",
+	    {"yearRange": "-1:+0"});
+    $("img.ui-datepicker-trigger").css("vertical-align", "middle");
+    $("#is_sputnik").click(function(){
+	    if ($(this).is(':checked')){
+		    $('#sfr').show(100);
+	    } else {
+		    $('#sfr').hide(100);
+	    }
+    });
+});
+</script>
+{% endblock %}
+{% block content %}
+{% if has_permission(current_user, 'AddPlayers') %}
+<form action = "" method="post">
+    <table>
+        <tr><td>{{form.lastname.label()}}</td><td>{{form.lastname()}}</td></tr>
+        <tr><td>{{form.firstname.label()}}</td><td>{{form.firstname()}}</td></tr>
+        <tr><td>{{form.fathername.label()}}</td><td>{{form.fathername()}}</td></tr>
+        <tr><td>{{form.sex.label()}}</td><td>{% for subfield in form.sex %}{{subfield}}{{subfield.label}}&nbsp;{% endfor %}</td></tr>
+        <tr><td>{{form.birthdate.label()}}</td><td>{{form.birthdate(class='dtpick')}}</td></tr>
+        <tr><td>{{form.city.label()}}</td><td>{{form.city()}}</td></tr>
+        <tr><td>{{form.is_sputnik.label()}}</td><td>{{form.is_sputnik()}}</td></tr>
+        <tr id="sfr" style="display:none;"><td>{{form.sputnik_first.label()}}</td><td>{{form.sputnik_first(class='dtpick')}}</td></tr>
+        <tr><td valign="top">{{form.notes.label()}}</td><td>{{form.notes()}}</td></tr>
+    </table>
+    <span>{{form.csrf_token()}}{{form.submit}}</span>
+</form>
+{% else %}
+<p>Недостаточно прав для добавления пользователей</p>
+{% endif %}
+{% endblock %}

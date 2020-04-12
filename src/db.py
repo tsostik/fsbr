@@ -1,10 +1,15 @@
 import pymysql.cursors
+from flask import current_app
 from src.interface import *
 from src.queries import Queries
-from src.helper import Helper
 from src.RateTours import RateTournaments
-from src.misc import *
+from src.misc import RazrChange, ClubStat
 from typing import List, Dict
+
+
+def getCities() -> Dict[str, int]:
+    # FIXME
+    return {'Москва': 16, 'С.-Петербург': 18, 'Другой': 10}
 
 
 class BaseIFace:
@@ -19,10 +24,10 @@ class BaseIFace:
         self.conn.close()
 
     def connectToDb(self):
-        self.conn = pymysql.connect(user='fsbr_plrs_python',
-                                    host='localhost',
-                                    password='fsbr_plrs_python',
-                                    db='fsbr')
+        self.conn = pymysql.connect(user=current_app.config['DB_USER'],
+                                    host=current_app.config['DB_HOST'],
+                                    password=current_app.config['DB_PASSWORD'],
+                                    db=current_app.config['DB_DB'])
 
     def loadPlayerData(self, plid) -> Player:
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -384,3 +389,33 @@ class BaseIFace:
             for record in cursor.fetchall():
                 result.add(record['club_name'], record['maxdate'])
         return result
+
+    def addNewPlayer(self, player: Player, author: int, note: str) -> int:
+        try:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                cursor.execute(Queries.select_max_id)
+                record = cursor.fetchone()
+                (p, n) = (record['p'], record['n'])
+                pid = max(p or 0, n or 0)
+                ok = False
+                while not ok:
+                    pid += 1
+                    cursor.execute(Queries.is_id_available.format(pid))
+                    ok = True if cursor.fetchone()['ok'] else False
+                cursor.execute(Queries.add_new_player,
+                               (
+                                   pid,
+                                   player.lastname,
+                                   player.firstname,
+                                   player.fathername,
+                                   player.sex,
+                                   player.birthdate,
+                                   player.is_sputnik,
+                                   player.sputnik_first,
+                                   author,
+                                   note
+                               ))
+                self.conn.commit()
+        finally:
+            pass
+        return pid or -1
