@@ -1,10 +1,10 @@
 from flask import Flask, Response, render_template, url_for, jsonify, request, session, flash, redirect
-from flask_htmlmin import HTMLMIN
+# from flask_htmlmin import HTMLMIN
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from flask_script import Manager
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON
+from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON, getSiriusList
 from src.rate import getFullList, getRate, getRateForecast
 from src.service import getRateTourns, getRazrChange, getClubStat
 from src.tournaments import getCities, getTournamentList, getTournamentXml
@@ -24,7 +24,9 @@ app.config.from_object('settings')
 db_users.init_app(app)
 lm = LoginManager(app)
 manager = Manager(app)
-HTMLMIN(app)
+
+
+# HTMLMIN(app)
 
 
 # блок для работы flask_script
@@ -89,7 +91,9 @@ def logout():
 def find_player(name: str = None):
     if request.form.get('name'):
         return redirect(url_for('find_player', name=request.form.get('name'), _method='GET'))
-    return render_template('find.htm', name=name, players=findPlayer(name) if name else None)
+    players = findPlayer(name) if name else None
+    return render_template('find.htm', name=name, players=filter(lambda x: x[0] == 0, players),
+                           new_players=list(filter(lambda x: x[0] == 1, players)))
 
 
 @app.route('/players/add/', methods=['post', 'get'])
@@ -110,6 +114,12 @@ def add_player():
             else:
                 flash('Неожиданная ошибка при добавлении игрока')
     return answer or render_template('addplayer.htm', form=form)
+
+
+@app.route('/misc/sirius/')
+def get_sirius_list():
+    res = getSiriusList()
+    return render_template('playerslist.htm', players=res, extratitle='клуба Сириус', skipheader=1, skipfather=1)
 
 
 # маршруты для бэкенда rest api TODO вынести в отдельный файл

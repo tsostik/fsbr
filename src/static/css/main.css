@@ -32,19 +32,28 @@ section {
 }
 
 button.tool {
-    border: 1px solid #CCCCCC;
-    background: #EEEEEE;
+    border: none;
 	border-radius: 33%;
 	padding: 12px;
-	box-shadow: 2px 6px 6px 0 #999;
+	box-shadow: none;
 }
 
-button.tool:hover {
-    background: #DDDDDD;
+table.playerlist {
+	border: 1px solid #0E4A0A;
+	border-collapse: collapse;
+	font-family : Verdana, sans-serif;
+	font-size : 10px;	
 }
 
-button.tool:active {
-  background: #DDDDDD;
-  box-shadow: 2px 3px 3px 0 #999;
-  transform: translateY(4px);
+table.playerlist th {
+	border: 1px solid #0E4A0A;
+	border-collapse: collapse;
+	background-color: #DDDDDD;
+	font-size: 8px;
+	font-style: italic;
+}
+
+table.playerlist td {
+	border: 1px solid #0E4A0A;
+	border-collapse: collapse;
 }

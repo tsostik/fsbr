@@ -33,6 +33,19 @@ class Queries:
         "left join " + select_mb + "using(player_id) " \
         "where players.state in (1, 2, 4, 5) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
+    select_sirius = \
+        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
+        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
+        "firstname < 'А' as isLatin " \
+        "from players " \
+        "left join cities using (city_id) " \
+        "left join ratelist on player_id=id " \
+        "left join " + select_pb + "using(player_id) " \
+        "left join " + select_mb + "using(player_id) " \
+        "left join students using(player_id) " \
+        "where players.state in (1, 2, 4, 5) and sirius=1 " \
+        "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
+
     select_rate = \
         "select players.player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
         "ifnull(rate, 0) as rate, ifnull(pb_, 0) as pb, 0 as mb, 0 as emb " \
@@ -43,10 +56,17 @@ class Queries:
         "left join " + select_mb + "using(player_id) " \
         "where players.state in (1, 2, 4, 5) and r_date = {0} " \
         "order by rate desc, pb desc, firstname asc"
-    select_find_player = " select player_id as plid, firstname, lastname, surname, city_name " \
-                         "from players left join cities using(city_id) " \
-                         "where state not in (7) and firstname like '%{0}%' " \
-                         "order by firstname, lastname, surname, city_name;"
+
+    select_find_player = \
+        "(select 0 as is_new, player_id as plid, firstname, lastname, surname, city_name " \
+        "from players left join cities using(city_id) " \
+        "where state not in (7) and firstname like '%{0}%') " \
+        "union all " \
+        "(select 1 as as_new, new_id as plid, firstname, lastname, surname, city_name " \
+        "from fsbr_aux.new_players left join cities using(city_id) " \
+        "where firstname like '%{0}%') " \
+        "order by is_new, firstname, lastname, surname, city_name;"
+
     select_external_ids = "select wbf as wbf_id, acbl as acbl_id, gambler as gambler_nick, bbo as bbo_nick " \
                           "from external_ids where player_id = {0};"
     select_admin = "select year_s as since, year_f as till, position as title, comitee as committee " \
@@ -151,5 +171,5 @@ class Queries:
                       "(select count(1) as a from fsbr_aux.new_players where new_id={0}) as s2"
 
     add_new_player = "insert into fsbr_aux.new_players (`new_id`, `firstname`, `lastname`, `surname`, " \
-                     "`sex`, `birthdate`, `sputnik`, `sputnik_first`, `author`, `Note`) values " \
-                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                     "`sex`, `birthdate`, `city_id`, `sputnik`, `sputnik_first`, `author`, `Note`) values " \
+                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"

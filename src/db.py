@@ -273,13 +273,19 @@ class BaseIFace:
                 cursor.execute(sql)
                 return cursor.fetchall()
 
-    def loadList(self, do_full=0):
+    def loadList(self, kind=0):
+        # kind: 0 - обычный
+        #       1 - полный список
+        #       2 - Сириус
+        kind_to_query = \
+            {
+                0: Queries.select_rate,
+                1: Queries.select_fullList,
+                2: Queries.select_sirius
+            }
         result = []
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            if do_full:
-                sql = Queries.select_fullList
-            else:
-                sql = Queries.select_rate
+            sql = kind_to_query[kind]
             cursor.execute(sql)
             for record in cursor.fetchall():
                 (razr, razr_temp) = Helper.getRazr(record['razr'], record['razr_coeff'])
@@ -410,6 +416,7 @@ class BaseIFace:
                                    player.fathername,
                                    player.sex,
                                    player.birthdate,
+                                   player.city,
                                    player.is_sputnik,
                                    player.sputnik_first,
                                    author,

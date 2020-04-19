@@ -16,13 +16,24 @@
     <table>
     {% for player in players %}
         <tr>
-        {% for col in player %}
+        {% for col in player[1:] %}
             <td><a href='{{url_for("player_xml", player_id=player[0])}}'>{{col}}</a></td>
         {% endfor %}
     {% endfor %}
     </table>
 {% else %}
     {% if name %}<p>Игроков по вашему запросу не найдено</p>{% endif %}
+{% endif %}
+{% if new_players|length > 0 %}
+    <div><br />Cледующие игроки ожидают добавления в базу данных</div>
+    <table>
+    {% for player in new_players %}
+        <tr>
+        {% for col in player[1:] %}
+            <td>{{col}}</td>
+        {% endfor %}
+    {% endfor %}
+    </table>
 {% endif %}
 </section>
 {% if has_permission(current_user, 'AddPlayers') %}
