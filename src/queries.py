@@ -58,11 +58,11 @@ class Queries:
         "order by rate desc, pb desc, firstname asc"
 
     select_find_player = \
-        "(select 0 as is_new, player_id as plid, firstname, lastname, surname, city_name " \
+        "(select player_id as plid, firstname, lastname, surname, city_name, 0 as is_new " \
         "from players left join cities using(city_id) " \
         "where state not in (7) and firstname like '%{0}%') " \
         "union all " \
-        "(select 1 as as_new, new_id as plid, firstname, lastname, surname, city_name " \
+        "(select new_id as plid, firstname, lastname, surname, city_name, 1 as is_new " \
         "from fsbr_aux.new_players left join cities using(city_id) " \
         "where firstname like '%{0}%') " \
         "order by is_new, firstname, lastname, surname, city_name;"

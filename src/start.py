@@ -55,7 +55,7 @@ def index():
 
 @app.route('/authorize/<provider>/')
 def oauth_authorize(provider):
-    redirect_url = request.args['next'] if 'next' in request.args else url_for(index)
+    redirect_url = request.args['next'] if 'next' in request.args else url_for('index')
     if not current_user.is_anonymous:
         return redirect(redirect_url)
     session['next'] = redirect_url
@@ -65,7 +65,7 @@ def oauth_authorize(provider):
 
 @app.route('/callback/<provider>/')
 def oauth_callback(provider):
-    redirect_url = session.get('next') if 'next' in session else url_for(index)
+    redirect_url = session.get('next') if 'next' in session else url_for('index')
     if not current_user.is_anonymous:
         return redirect(redirect_url)
     oauth = OAuthSignIn.get_provider(provider)
@@ -92,8 +92,8 @@ def find_player(name: str = None):
     if request.form.get('name'):
         return redirect(url_for('find_player', name=request.form.get('name'), _method='GET'))
     players = findPlayer(name) if name else None
-    return render_template('find.htm', name=name, players=filter(lambda x: x[0] == 0, players) if players else None,
-                           new_players=list(filter(lambda x: x[0] == 1, players)) if players else [])
+    return render_template('find.htm', name=name, players=filter(lambda x: x[-1] == 0, players) if players else None,
+                           new_players=list(filter(lambda x: x[-1] == 1, players)) if players else [])
 
 
 @app.route('/players/add/', methods=['post', 'get'])

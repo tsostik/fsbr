@@ -16,7 +16,7 @@
     <table>
     {% for player in players %}
         <tr>
-        {% for col in player[1:] %}
+        {% for col in player[:-1] %}
             <td><a href='{{url_for("player_xml", player_id=player[0])}}'>{{col}}</a></td>
         {% endfor %}
     {% endfor %}
@@ -29,7 +29,7 @@
     <table>
     {% for player in new_players %}
         <tr>
-        {% for col in player[1:] %}
+        {% for col in player[:-1] %}
             <td>{{col}}</td>
         {% endfor %}
     {% endfor %}
