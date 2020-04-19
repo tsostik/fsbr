@@ -92,8 +92,8 @@ def find_player(name: str = None):
     if request.form.get('name'):
         return redirect(url_for('find_player', name=request.form.get('name'), _method='GET'))
     players = findPlayer(name) if name else None
-    return render_template('find.htm', name=name, players=filter(lambda x: x[0] == 0, players),
-                           new_players=list(filter(lambda x: x[0] == 1, players)))
+    return render_template('find.htm', name=name, players=filter(lambda x: x[0] == 0, players) if players else None,
+                           new_players=list(filter(lambda x: x[0] == 1, players)) if players else [])
 
 
 @app.route('/players/add/', methods=['post', 'get'])
