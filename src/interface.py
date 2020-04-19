@@ -242,9 +242,9 @@ class Player:
                 if field in self.__dict__:
                     locals()[field] = et.SubElement(info, field)
                     locals()[field].text = self.__dict__[field]
-            if hasattr(self.birthdate, "strftime"):
-                birthdate = et.SubElement(info, 'birthdate')
-                birthdate.text = self.birthdate.strftime("%Y-%m-%d")
+            # if hasattr(self.birthdate, "strftime"):
+            #     birthdate = et.SubElement(info, 'birthdate')
+            #     birthdate.text = self.birthdate.strftime("%Y-%m-%d")
             photo_url = f'foto/{self.id}.jpg'
             if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
                 photo = et.SubElement(info, 'photo')
