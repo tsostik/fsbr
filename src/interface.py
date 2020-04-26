@@ -150,7 +150,7 @@ class AdminPos:
 
 class Player:
     # Full data for player history
-    allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'sex', 'city', 'mail',
+    allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'sex', 'city', 'mail', 'club_id',
                       'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb',
                       'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt', 'is_sputnik', 'sputnik_first']
 
@@ -162,6 +162,7 @@ class Player:
         self.sex = None
         self.birthdate = None
         self.city = None
+        self.club_id = None
         self.razr = None
         self.razr_temp = False
         self.pb = None
@@ -242,6 +243,9 @@ class Player:
                 if field in self.__dict__:
                     locals()[field] = et.SubElement(info, field)
                     locals()[field].text = self.__dict__[field]
+            if self.club_id:
+                club = et.SubElement(info, "club")
+                club.set('id', str(self.club_id))
             # if hasattr(self.birthdate, "strftime"):
             #     birthdate = et.SubElement(info, 'birthdate')
             #     birthdate.text = self.birthdate.strftime("%Y-%m-%d")
@@ -504,7 +508,7 @@ class Tournament:
 
 class RateRecord:
     # One record in full list or rate list
-    allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'city',
+    allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'city', 'club_id',
                       'razr', 'razr_temp', 'pb', 'rate', 'mb', 'emb']
 
     def __init__(self, **kwargs):
@@ -513,6 +517,7 @@ class RateRecord:
         self.firstname = ''
         self.fathername = ''
         self.city = ''
+        self.club_id = None
         self.razr = None
         self.razr_temp = False
         self.pb = 0
@@ -553,6 +558,9 @@ class RateRecord:
         fathername.text = self.fathername
         city = et.SubElement(result, 'city')
         city.text = self.city
+        if self.club_id:
+            club = et.SubElement(result, "club")
+            club.set('id', str(self.club_id))
         razr = et.SubElement(result, 'razr')
         razr.text = str(self.razr)
         if self.razr_temp:
@@ -579,6 +587,9 @@ class RateRecord:
             razr.set('temp', '1')
         city = et.SubElement(result, 'city')
         city.text = self.city
+        if self.club_id:
+            club = et.SubElement(result, "club")
+            club.set('id', str(self.club_id))
         rate = et.SubElement(result, 'rate')
         rate.text = str(self.rate)
         pb = et.SubElement(result, 'pb')

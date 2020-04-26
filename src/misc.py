@@ -27,14 +27,15 @@ class ClubStat:
     def __init__(self):
         self.clubs = []
 
-    def add(self, club: str, date: datetime.date):
-        self.clubs.append({'club': club, 'date': date})
+    def add(self, club_id: int, club: str,date: datetime.date):
+        self.clubs.append({'club_id': club_id, 'club': club, 'date': date})
 
     @property
     def xml(self) -> et.Element:
         result = et.Element('ClubStat')
         for record in self.clubs:
             club = et.SubElement(result, 'club')
+            club.set('id', str(record['club_id']))
             club.set('name', record['club'])
             club.set('date', str(record['date']))
         return result

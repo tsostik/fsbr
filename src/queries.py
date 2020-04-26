@@ -12,7 +12,7 @@ class Queries:
                 "as sel_mb "
     # TODO: select_player and select_fullList are very similar. Refactor to reduce code duplication
     select_player = \
-        "select player_id, firstname, lastname, surname, birthdate, city_name, razr, razr_coeff, mail, " \
+        "select player_id, firstname, lastname, surname, birthdate, city_name, razr, razr_coeff, mail, club_id, " \
         "ifnull(rate, 0) as rate, place, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb " \
         "from players " \
         "left join cities using (city_id) " \
@@ -23,7 +23,7 @@ class Queries:
         "left join " + select_mb + "using(player_id)" \
         "where {0};"
     select_fullList = \
-        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
+        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
         "firstname < 'А' as isLatin " \
         "from players " \
@@ -48,7 +48,7 @@ class Queries:
 
     select_rate = \
         "select players.player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
-        "ifnull(rate, 0) as rate, ifnull(pb_, 0) as pb, 0 as mb, 0 as emb " \
+        "club_id, ifnull(rate, 0) as rate, ifnull(pb_, 0) as pb, 0 as mb, 0 as emb " \
         "from rate_history " \
         "left join players using(player_id) " \
         "left join cities using (city_id) " \

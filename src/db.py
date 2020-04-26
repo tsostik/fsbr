@@ -43,6 +43,7 @@ class BaseIFace:
                             birthdate=record['birthdate'],
                             city=record['city_name'],
                             mail=record['mail'],
+                            club_id=record['club_id'],
                             razr=razr,
                             razr_temp=razr_temp,
                             rate=record['rate'],
@@ -159,6 +160,7 @@ class BaseIFace:
                             fathername=record['surname'],
                             birthdate=record['birthdate'],
                             city=record['city_name'],
+                            club_id=record['club_id'],
                             razr=razr,
                             razr_temp=razr_temp,
                             rate=record['rate'],
@@ -296,6 +298,7 @@ class BaseIFace:
                                     birthdate=record['birthdate'],
                                     sex=record['sex'],
                                     city=record['city_name'],
+                                    club_id=record['club_id'],
                                     razr=razr,
                                     razr_temp=razr_temp,
                                     rate=record['rate'],
@@ -319,6 +322,7 @@ class BaseIFace:
                                     birthdate=record['birthdate'],
                                     sex=record['sex'],
                                     city=record['city_name'],
+                                    club_id=record['club_id'],
                                     razr=razr,
                                     razr_temp=razr_temp,
                                     rate=record['rate'],
@@ -393,7 +397,7 @@ class BaseIFace:
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             cursor.execute(sql)
             for record in cursor.fetchall():
-                result.add(record['club_name'], record['maxdate'])
+                result.add(record['club_id'], record['club_name'], record['maxdate'])
         return result
 
     def addNewPlayer(self, player: Player, author: int, note: str) -> int:
