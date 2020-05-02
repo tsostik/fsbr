@@ -4,10 +4,11 @@
 {% if skipheader %}{% block header %}{% endblock %}{% endif %}
 {% block content %}<table class="playerlist">
     <tr>
-        <th rowspan="2">ID</th>
+        <th rowspan="2">ID</th>{% if not skipfather %}
         <th rowspan="2">Фамилия</th>
-        <th rowspan="2">Имя</th>{% if not skipfather %}
-        <th rowspan="2">Отчество</th>{% endif %}
+        <th rowspan="2">Имя</th>
+        <th rowspan="2">Отчество</th>{%else%}
+        <th rowspan="2">Игрок</th>{% endif %}
         <th rowspan="2">Город</th>
         <th rowspan="2">Разряд</th>
         <th rowspan="2">Рейтинг</th>
@@ -19,10 +20,11 @@
     </tr>
 {% for player in players %}
     <tr>
-        <td>{{player['id']}}</td>
+        <td>{{player['id']}}</td>{% if not skipfather %}
         <td><a href="{{link}}{{player['id']}}">{{player['lastname']}}</a></td>
-        <td><a href="{{link}}{{player['id']}}">{{player['firstname']}}</a></td>{% if not skipfather %}
-        <td><a href="{{link}}{{player['id']}}">{{player['fathername']}}</a></td>{%endif%}
+        <td><a href="{{link}}{{player['id']}}">{{player['firstname']}}</a></td>
+        <td><a href="{{link}}{{player['id']}}">{{player['fathername']}}</a></td>
+        {%else%}<td><a href="{{link}}{{player['id']}}">{{player['firstname']}}&nbsp;{{player['lastname']}}</a></td>{%endif%}
         <td>{{player['city']}}</td>
         <td>{{player['razr']}}</td>
         <td>{{player['rate']}}</td>

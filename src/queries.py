@@ -34,7 +34,7 @@ class Queries:
         "where players.state in (1, 2, 4, 5) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
     select_sirius = \
-        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, " \
+        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
         "firstname < 'А' as isLatin " \
         "from players " \
