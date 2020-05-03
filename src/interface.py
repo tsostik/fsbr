@@ -3,6 +3,7 @@ import datetime
 import os
 from src.helper import Helper
 from typing import List
+from collections import OrderedDict
 
 
 class PlayingRecord:
@@ -599,6 +600,18 @@ class RateRecord:
             category = et.SubElement(categories, 'category')
             category.text = cat
         return result
+
+    @property
+    def xlRecord(self) -> OrderedDict:
+        return OrderedDict([
+                ('id', self.id),
+                ('Фамилия', self.lastname),
+                ('Имя', self.firstname),
+                ('Отчество', self.fathername),
+                ('Город', self.city),
+                ('Разряд', self.razr),
+                ('*', '*' if self.razr_temp else ''),
+                ('Рейтинг', self.rate)])
 
 
 class RateForecastTournRecord:

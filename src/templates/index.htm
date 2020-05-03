@@ -1,6 +1,6 @@
 {% extends 'base.htm' %}
 {% block content %}
-<a href="{{url_for('find_player')}}">
-<button class="tool"><img width="24px" height="24px" src="{{url_for('static', filename='search.svg')}}"/></button>
-</a>
-{% endblock%}
+<a href="{{url_for('find_player')}}"><button class="tool"><img width="24px" height="24px" src="{{url_for('static', filename='search.svg')}}"/></button></a>
+&nbsp;
+<a href="{{url_for('excel_list')}}"><button class="tool"><img width="24px" height="24px" src="{{url_for('static', filename='excel.svg')}}"/></button></a>
+{% endblock %}

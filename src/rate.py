@@ -36,3 +36,12 @@ def getRateForecast():
             pxml.set('rank', str(rk))
             result.append(pxml)
     return result
+
+
+def getExcelList():
+    with BaseIFace() as base:
+        result = []
+        players = base.loadList(1)
+        for player in players:
+            result.append(player.xlRecord)
+    return result

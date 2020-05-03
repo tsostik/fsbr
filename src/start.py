@@ -1,11 +1,12 @@
 from flask import Flask, Response, render_template, url_for, jsonify, request, session, flash, redirect
 # from flask_htmlmin import HTMLMIN
+import flask_excel as excel
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from flask_script import Manager
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON, getSiriusList
-from src.rate import getFullList, getRate, getRateForecast
+from src.rate import getFullList, getRate, getRateForecast, getExcelList
 from src.service import getRateTourns, getRazrChange, getClubStat
 from src.tournaments import getCities, getTournamentList, getTournamentXml
 from src.users import User, db as db_users, find_or_add_user, has_permission
@@ -24,7 +25,7 @@ app.config.from_object('settings')
 db_users.init_app(app)
 lm = LoginManager(app)
 manager = Manager(app)
-
+excel.init_excel(app)
 
 # HTMLMIN(app)
 
@@ -234,6 +235,11 @@ def clubs():
     res = getClubStat()
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
+
+@app.route('/misc/ListXL/')
+def excel_list():
+    return excel.make_response_from_records(getExcelList(), 'xls', file_name='players')
 
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
