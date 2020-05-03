@@ -526,6 +526,9 @@ class RateRecord:
         self.mb = 0
         self.emb = 0
         self.categories = ['O']
+        self.isW = False
+        self.isJ = False
+        self.isS = False
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ':
             self.firstname = ''
@@ -536,16 +539,19 @@ class RateRecord:
                                                (self.fathername[0] if len(self.fathername) > 0 else ''))
         if 'sex' in kwargs and kwargs['sex'] == 0:
             self.categories.append('W')
+            self.isW = True
 
         if 'birthdate' in kwargs and hasattr(kwargs['birthdate'], 'year'):  # birthdate is valid date
             # TODO Replace today with actual date
             age = datetime.date.today().year - kwargs['birthdate'].year
             if age < 26:
                 self.categories.append('J')
+                self.isJ = True
             if age >= 61:
                 # This age should be revisited later according to EBL policies.
                 # See SCoC for current european Championship
                 self.categories.append('S')
+                self.isS = True
 
     @property
     def xmlFullList(self) -> et.Element:
@@ -611,7 +617,11 @@ class RateRecord:
                 ('Город', self.city),
                 ('Разряд', self.razr),
                 ('*', '*' if self.razr_temp else ''),
-                ('Рейтинг', self.rate)])
+                ('Рейтинг', self.rate),
+                ('Клуб', self.club_id),
+                ('Ж', 1 if self.isW else ''),
+                ('Ю', 1 if self.isJ else ''),
+                ('C', 1 if self.isS else '')])
 
 
 class RateForecastTournRecord:
