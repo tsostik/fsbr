@@ -37,16 +37,16 @@ class PlayingRecord:
             result = True
         elif (20 <= self.champ_t <= 29) and self.placeh <= 3:  # Малый чемпионат России, призовое место
             result = True
-        elif self.champ_t == 31 and self.placeh <= 5:  # КЧР, места 1 - 5
+        elif self.champ_t == 31 and self.placeh <= 3:  # КЧР, места 1 - 5
             result = True
-        elif (self.champ_t == 32 or self.champ_t == 33) and self.placeh <= 10:  # ПЧР или ПЧР-ИМП, места 1-10
+        elif (self.champ_t == 32 or self.champ_t == 33) and self.placeh <= 3:  # ПЧР или ПЧР-ИМП, места 1-10
             result = True
         elif (90 <= self.champ_t < 100) and self.placeh <= 3:  # Неквалифицируемые чемпионаты Европы и Мира
             result = True
-        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:
+        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 3:
             # Парный чемпионат Европы или Мира, места 1-10
             result = True
-        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:
+        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 3:
             # Командный чемпионат Европы или Мира, места 1-8
             result = True
         return result
@@ -616,8 +616,10 @@ class RateRecord:
                 ('Отчество', self.fathername),
                 ('Город', self.city),
                 ('Разряд', self.razr),
-                ('*', '*' if self.razr_temp else ''),
+                ('МБ', self.mb or 0+ self.emb or 0),
+                ('ПБ', self.pb),
                 ('Рейтинг', self.rate),
+                ('*', '*' if self.razr_temp else ''),
                 ('Клуб', self.club_id),
                 ('Ж', 1 if self.isW else ''),
                 ('Ю', 1 if self.isJ else ''),

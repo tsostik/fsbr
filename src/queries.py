@@ -80,7 +80,7 @@ class Queries:
         "from results " \
         "left join tourn_header using(tourn_id)" \
         "left join results_ses on tourn_id = main_tourn_id and results.player_id = results_ses.player_id " \
-        "where type in (1, 2, 3) and results.player_id = {0};"
+        "where type in (1, 2, 3) and results.player_id = {0} order by results.tour_date desc;"
     select_other = \
         "select events.event_id as id, event_name as event, year(event_date) as year, position as title " \
         "from events_part left join events using (event_id) where player_id = {0};"
@@ -91,7 +91,7 @@ class Queries:
                    " where tourn_id = {0};"
     select_all_tourns = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, "  \
                         "tour_date as end, city_name as city, tounr_pair as parent_id " \
-                        "from tourn_header left join cities using (city_id) "
+                        "from tourn_header left join cities using (city_id) where type != 5"
     select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
                  "from tourn_ind left join players on team_id = player_id where tour_id = {0};"
     select_pair = \
