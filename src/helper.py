@@ -1,5 +1,5 @@
 import datetime
-from typing import List
+from typing import List, Optional
 
 
 class Helper:
@@ -47,3 +47,10 @@ class Helper:
             return src[0]
 
         return next(d for d in reversed(src) if d <= target)
+
+    @staticmethod
+    def smartSplit(data: Optional[str]) -> list:
+        result = [None]
+        if data is not None:
+            result = list(filter(lambda x: x != '', data.replace(",", ' ').replace(";", ' ').split(" ")))
+        return result
