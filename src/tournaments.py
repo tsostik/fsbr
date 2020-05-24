@@ -25,7 +25,7 @@ def getTournamentList():
 
 def getFamiliesList(family_id):
     with BaseIFace() as base:
-        result = et.Element('Families')
+        result = et.Element('families')
         for family in base.loadFamilies(family_id):
             result.append(family.xml)
     return result

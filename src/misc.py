@@ -52,11 +52,11 @@ class Family:
 
     @property
     def xml(self) -> et.Element:
-        result = et.Element('Family')
+        result = et.Element('family')
         result.set('id', str(self.id))
         result.set('name', self.name)
         for record in sorted(self.tournaments, key=lambda t: t['date']):
-            tournament = et.SubElement(result, 'Tournament')
+            tournament = et.SubElement(result, 'tournament')
             tournament.set('id', str(record['tourn_id']))
             tournament.set('date', str(record['date']))
             tournament.text = record['tourn_name']
