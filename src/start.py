@@ -8,7 +8,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON, getSiriusList
 from src.rate import getFullList, getRate, getRateForecast, getExcelList
 from src.service import getRateTourns, getRazrChange, getClubStat
-from src.tournaments import getCities, getTournamentList, getTournamentXml
+from src.tournaments import getCities, getTournamentList, getTournamentXml, getFamiliesList
 from src.users import User, db as db_users, find_or_add_user, has_permission
 
 from src.forms import AddPlayer
@@ -26,6 +26,7 @@ db_users.init_app(app)
 lm = LoginManager(app)
 manager = Manager(app)
 excel.init_excel(app)
+
 
 # HTMLMIN(app)
 
@@ -170,6 +171,15 @@ def tournament_xml(tournament_id):
 def tournament_list_xml():
     start_time = time.perf_counter()
     res = getTournamentList()
+    res.set('generated', str(time.perf_counter() - start_time))
+    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+
+
+@app.route('/tourns/families/xml/')
+@app.route('/tourns/families/<int:family_id>/xml/')
+def families_list(family_id=None):
+    start_time = time.perf_counter()
+    res = getFamiliesList(family_id)
     res.set('generated', str(time.perf_counter() - start_time))
     return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
 

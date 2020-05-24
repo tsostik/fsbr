@@ -21,3 +21,11 @@ def getTournamentList():
         for tourn in base.loadTournList():
             result.append(tourn.xmlShort)
     return result
+
+
+def getFamiliesList(family_id):
+    with BaseIFace() as base:
+        result = et.Element('Families')
+        for family in base.loadFamilies(family_id):
+            result.append(family.xml)
+    return result

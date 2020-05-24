@@ -445,7 +445,7 @@ class TournamentRecordTeam(TournamentRecord):
 
 class Tournament:
     # Full data of a tournament result
-    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'parent_id']
+    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'parent_id', 'family']
     types = {1: "Individual", 2: "Pair", 3: "Team", 4: "Session", 5: "Club", 6: "Festival"}
 
     def __init__(self, **kwargs):
@@ -457,6 +457,7 @@ class Tournament:
         self.city = None
         self.parent_id = None
         self.parent_name = None
+        self.family = None
         self.nested = []
         self.participants = []
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
@@ -470,6 +471,8 @@ class Tournament:
         tournament.set('id', str(self.id))
         if self.id:
             tournament.set('type', self.types[self.type])
+            if self.family:
+                tournament.set('family', str(self.family))
             if self.nested:
                 nested = et.SubElement(tournament, 'nested')
                 for child in self.nested:
@@ -498,6 +501,8 @@ class Tournament:
         result.set('id', str(self.id))
         if self.parent_id:
             result.set('parent', str(self.parent_id))
+        if self.family:
+            result.set('family', str(self.family))
         if self.id:
             for field in ['name', 'city', 'start', 'end']:
                 locals()[field] = et.SubElement(result, field)
@@ -616,7 +621,7 @@ class RateRecord:
                 ('Отчество', self.fathername),
                 ('Город', self.city),
                 ('Разряд', self.razr),
-                ('МБ', self.mb or 0+ self.emb or 0),
+                ('МБ', self.mb or 0 + self.emb or 0),
                 ('ПБ', self.pb),
                 ('Рейтинг', self.rate),
                 ('*', '*' if self.razr_temp else ''),

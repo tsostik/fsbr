@@ -3,7 +3,7 @@ from flask import current_app
 from src.interface import *
 from src.queries import Queries
 from src.RateTours import RateTournaments
-from src.misc import RazrChange, ClubStat
+from src.misc import RazrChange, ClubStat, Family
 from typing import List, Dict
 
 
@@ -430,3 +430,18 @@ class BaseIFace:
         finally:
             pass
         return pid or -1
+
+    def loadFamilies(self, family_id) -> List[Family]:
+        families: Dict[int, Family] = {}
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = Queries.select_families.format("" if family_id is None else "and family = {0}".format(family_id))
+            cursor.execute(sql)
+            for record in cursor.fetchall():
+                f_id = record['family_id']
+                t_id = record['tourn_id']
+                t_nm = record['tourn_name']
+                t_dt = record['date']
+                if record['family_id'] not in families:
+                    families[f_id] = Family(f_id, record['family_name'])
+                families[f_id].add(t_id, t_nm, t_dt)
+        return list(families.values())

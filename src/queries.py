@@ -91,7 +91,7 @@ class Queries:
                    "from tourn_header left join cities using (city_id) " \
                    " where tourn_id = {0};"
     select_all_tourns = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, "  \
-                        "tour_date as end, city_name as city, tounr_pair as parent_id " \
+                        "tour_date as end, city_name as city, tounr_pair as parent_id, family " \
                         "from tourn_header left join cities using (city_id) where type != 5"
     select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
                  "from tourn_ind left join players on team_id = player_id where tour_id = {0};"
@@ -143,6 +143,12 @@ class Queries:
         "left join players using (player_id)" \
         "where ro > 0 and results.tour_date between {0}0101 and {0}1231 " \
         "order by results.tour_date asc, results.tourn_id asc, placeh asc, placel asc"
+
+    select_families = \
+        "select family_id, f.name as family_name, " \
+        "t.name as tourn_name, t.tourn_id as tourn_id, t.tour_date as date " \
+        "from tourn_header t left join families f on family_id = family " \
+        "where family is not null {0};"
 
     select_razr_change = \
         "select player_id, firstname as lastname, lastname as firstname, surname as fathername, " \

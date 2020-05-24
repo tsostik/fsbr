@@ -27,7 +27,7 @@ class ClubStat:
     def __init__(self):
         self.clubs = []
 
-    def add(self, club_id: int, club: str,date: datetime.date):
+    def add(self, club_id: int, club: str, date: datetime.date):
         self.clubs.append({'club_id': club_id, 'club': club, 'date': date})
 
     @property
@@ -38,4 +38,26 @@ class ClubStat:
             club.set('id', str(record['club_id']))
             club.set('name', record['club'])
             club.set('date', str(record['date']))
+        return result
+
+
+class Family:
+    def __init__(self, family_id: int, name: str):
+        self.id = family_id
+        self.name = name
+        self.tournaments = []
+
+    def add(self, tourn_id: int, tourn_name: str, date: datetime.date):
+        self.tournaments.append({'tourn_id': tourn_id, 'tourn_name': tourn_name, 'date': date})
+
+    @property
+    def xml(self) -> et.Element:
+        result = et.Element('Family')
+        result.set('id', str(self.id))
+        result.set('name', self.name)
+        for record in sorted(self.tournaments, key=lambda t: t['date']):
+            tournament = et.SubElement(result, 'Tournament')
+            tournament.set('id', str(record['tourn_id']))
+            tournament.set('date', str(record['date']))
+            tournament.text = record['tourn_name']
         return result
