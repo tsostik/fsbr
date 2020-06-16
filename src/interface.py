@@ -220,12 +220,13 @@ class Player:
         """
         :type wbf_id: int
         :type acbl_id: int
-        :type gambler_nick: str
+        :type gambler_nick:
         :type bbo_nick: str
         """
         self.wbf_id = wbf_id
         self.acbl_id = acbl_id
-        self.gambler_nick = gambler_nick
+        if isinstance(gambler_nick, str):
+            self.gambler_nick = gambler_nick.split(",")
         self.bbo_nick = bbo_nick
 
     def setRateStat(self, best_rate, best_rate_date, best_rank, best_rank_date):
@@ -253,7 +254,7 @@ class Player:
             photo_url = f'foto/{self.id}.jpg'
             if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
                 photo = et.SubElement(info, 'photo')
-                photo.set('url', 'http://bridgesport.ru/players/' + photo_url)
+                photo.set('url', 'https://db.bridgesport.ru/' + photo_url)
 
             sportlevel = et.SubElement(player_record, 'sportlevel')
             for field in ['razr', 'pb', 'rate']:
@@ -296,8 +297,9 @@ class Player:
                     acbl.set('id', str(self.acbl_id))
                 if self.gambler_nick:
                     gambler = et.SubElement(ext, "Gambler")
-                    gamblernick = et.SubElement(gambler, 'nick')
-                    gamblernick.text = str(self.gambler_nick)
+                    for nick in self.gambler_nick:
+                        gamblernick = et.SubElement(gambler, 'nick')
+                        gamblernick.text = str(nick)
                 if self.bbo_nick:
                     bbo = et.SubElement(ext, "BBO")
                     bbonick = et.SubElement(bbo, 'nick')
@@ -614,6 +616,8 @@ class RateRecord:
 
     @property
     def xlRecord(self) -> OrderedDict:
+        if self.id == 1936:
+            pass
         return OrderedDict([
                 ('id', self.id),
                 ('Фамилия', self.lastname),
@@ -621,7 +625,7 @@ class RateRecord:
                 ('Отчество', self.fathername),
                 ('Город', self.city),
                 ('Разряд', self.razr),
-                ('МБ', self.mb or 0 + self.emb or 0),
+                ('МБ', (self.mb or 0) + (self.emb or 0)),
                 ('ПБ', self.pb),
                 ('Рейтинг', self.rate),
                 ('*', '*' if self.razr_temp else ''),
