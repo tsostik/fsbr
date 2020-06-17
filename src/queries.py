@@ -110,7 +110,7 @@ class Queries:
         "left join teams using (team_id) " \
         "left join tourn_team using(team_id) " \
         "left join players using (player_id) " \
-        "where team_id in (select team_id from tourn_team where tour_id = {0});"
+        "where tour_id = {0};"
     select_teams_nq = \
         "select teams.team_id as tid, team_name, players.player_id as plid, firstname, lastname, surname " \
         "from team_players_nonqual " \
