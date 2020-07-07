@@ -2,7 +2,7 @@ import lxml.etree as et
 import datetime
 import os
 from src.helper import Helper
-from typing import List
+from typing import List, Optional
 from collections import OrderedDict
 
 
@@ -447,7 +447,7 @@ class TournamentRecordTeam(TournamentRecord):
 
 class Tournament:
     # Full data of a tournament result
-    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'parent_id', 'family']
+    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'parent_id', 'family', 'is_show']
     types = {1: "Individual", 2: "Pair", 3: "Team", 4: "Session", 5: "Club", 6: "Festival"}
 
     def __init__(self, **kwargs):
@@ -462,6 +462,7 @@ class Tournament:
         self.family = None
         self.nested = []
         self.participants = []
+        self.is_show: Optional[bool] = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     def addParticipant(self, participant: TournamentRecord):
@@ -475,6 +476,8 @@ class Tournament:
             tournament.set('type', self.types[self.type])
             if self.family:
                 tournament.set('family', str(self.family))
+            if self.is_show:
+                tournament.set('show', "1")
             if self.nested:
                 nested = et.SubElement(tournament, 'nested')
                 for child in self.nested:
@@ -505,6 +508,8 @@ class Tournament:
             result.set('parent', str(self.parent_id))
         if self.family:
             result.set('family', str(self.family))
+        if self.is_show:
+            result.set('show', "1")
         if self.id:
             for field in ['name', 'city', 'start', 'end']:
                 locals()[field] = et.SubElement(result, field)

@@ -43,8 +43,7 @@ class Queries:
         "left join ratelist on player_id=id " \
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id) " \
-        "left join students using(player_id) " \
-        "where players.state in (1, 2, 4, 5) and sirius=1 " \
+        "where players.state in (1, 2, 4, 5) and club_id=25 " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
     select_rate = \
@@ -87,12 +86,15 @@ class Queries:
         "from events_part left join events using (event_id) where player_id = {0};"
 
     select_tourn = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, " \
-                   "tour_date as end, city_name as city, tounr_pair as parent_id " \
+                   "tour_date as end, city_name as city, tounr_pair as parent_id, is_show " \
                    "from tourn_header left join cities using (city_id) " \
-                   " where tourn_id = {0};"
+                   "left join tourn_site_data using (tourn_id) " \
+                   "where tourn_id = {0};"
     select_all_tourns = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, "  \
-                        "tour_date as end, city_name as city, tounr_pair as parent_id, family " \
-                        "from tourn_header left join cities using (city_id) where type != 5"
+                        "tour_date as end, city_name as city, tounr_pair as parent_id, family, is_show " \
+                        "from tourn_header left join cities using (city_id) " \
+                        "left join tourn_site_data using (tourn_id) " \
+                        "where type != 5"
     select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
                  "from tourn_ind left join players on team_id = player_id where tour_id = {0};"
     select_pair = \
