@@ -286,9 +286,13 @@ class BaseIFace:
                 2: Queries.select_sirius
             }
         result = []
+        club_id = None
+        if kind > 100:
+            club_id = kind - 100
+            kind = 2
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = kind_to_query[kind]
-            cursor.execute(sql)
+            cursor.execute(sql, (club_id))
             for record in cursor.fetchall():
                 (razr, razr_temp) = Helper.getRazr(record['razr'], record['razr_coeff'])
                 player = RateRecord(id=record['player_id'],
@@ -391,11 +395,14 @@ class BaseIFace:
                 result.append(RazrChange(**record))
         return result
 
-    def loadClubStat(self) -> ClubStat:
+    def loadClubStat(self, club_id) -> ClubStat:
         result = ClubStat()
-        sql = Queries.select_club_stat
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            cursor.execute(sql)
+            if club_id:
+                sql = Queries.select_club_info
+            else:
+                sql = Queries.select_club_stat
+            cursor.execute(sql, (club_id))
             for record in cursor.fetchall():
                 result.add(record['club_id'], record['club_name'], record['maxdate'])
         return result

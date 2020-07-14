@@ -5,7 +5,7 @@ from flask_login import LoginManager, current_user, login_user, logout_user, log
 from flask_script import Manager
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON, getSiriusList
+from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON, getClubList
 from src.rate import getFullList, getRate, getRateForecast, getExcelList
 from src.service import getRateTourns, getRazrChange, getClubStat
 from src.tournaments import getCities, getTournamentList, getTournamentXml, getFamiliesList
@@ -120,8 +120,14 @@ def add_player():
 
 @app.route('/misc/sirius/')
 def get_sirius_list():
-    res = getSiriusList()
-    return render_template('playerslist.htm', players=res, extratitle='клуба Сириус', skipheader=1, skipfather=1)
+    res, name = getClubList(25)
+    return render_template('playerslist.htm', players=res, extratitle='клуба {0}'.format(name), skipfather=1)
+
+
+@app.route('/misc/clubs/<int:club_id>/')
+def get_club_list(club_id):
+    res, name = getClubList(club_id)
+    return render_template('playerslist.htm', players=res, extratitle='клуба {0}'.format(name) )
 
 
 # маршруты для бэкенда rest api TODO вынести в отдельный файл

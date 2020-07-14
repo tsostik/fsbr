@@ -1,7 +1,8 @@
 {% extends 'base.htm' %}
-{% set link = "http://www.bridgesport.ru/players/player.php?player_id="%}
+{% set link = "https://www.bridgesport.ru/players-and-ratings/search-player/"%}
+{% set link_tail = "/"%}
 {% block title %}<title>Список игроков{% if extratitle %} {{extratitle}}{% endif %}</title>{% endblock %}
-{% if skipheader %}{% block header %}{% endblock %}{% endif %}
+{% block header %}{% endblock %}
 {% block content %}<table class="playerlist">
     <tr>
         <th rowspan="2">#</th>
@@ -23,10 +24,10 @@
     <tr>
         <td align="right">{{loop.index}}</td>
         <td align="left">{{player['id']}}</td>{% if not skipfather %}
-        <td><a href="{{link}}{{player['id']}}">{{player['lastname']}}</a></td>
-        <td><a href="{{link}}{{player['id']}}">{{player['firstname']}}</a></td>
-        <td><a href="{{link}}{{player['id']}}">{{player['fathername']}}</a></td>
-        {%else%}<td><a href="{{link}}{{player['id']}}">{{player['firstname']}}&nbsp;{{player['lastname']}}</a></td>{%endif%}
+        <td><a href="{{link}}{{player['id']}}{{link_tail}}">{{player['lastname']}}</a></td>
+        <td><a href="{{link}}{{player['id']}}{{link_tail}}">{{player['firstname']}}</a></td>
+        <td><a href="{{link}}{{player['id']}}{{link_tail}}">{{player['fathername']}}</a></td>
+        {%else%}<td><a href="{{link}}{{player['id']}}{{link_tail}}">{{player['firstname']}}&nbsp;{{player['lastname']}}</a></td>{%endif%}
         <td>{{player['city']}}</td>
         <td>{{player['razr']}}</td>
         <td>{{player['rate']}}</td>

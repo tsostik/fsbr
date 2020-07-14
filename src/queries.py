@@ -43,7 +43,7 @@ class Queries:
         "left join ratelist on player_id=id " \
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id) " \
-        "where players.state in (1, 2, 4, 5) and club_id=25 " \
+        "where players.state in (1, 2, 4, 5) and club_id=%s " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
     select_rate = \
@@ -160,9 +160,14 @@ class Queries:
         "order by get_razr_num(new_razr, cities.city_id), get_razr_num(old_razr, cities.city_id) desc, old_razr desc"
 
     select_club_stat = \
-        "select club_id, clubs.name as club_name, max(tour_date) as maxdate " \
+        "select club_id, ifnull(clubs.shortname, clubs.name) as club_name, max(tour_date) as maxdate " \
         "from tourn_header as t, clubs " \
         "where t.type=5 and t.city_id = clubs.city_id group by club_id  order by club_id"
+
+    select_club_info = \
+        "select club_id, ifnull(clubs.shortname, clubs.name) as club_name, max(tour_date) as maxdate " \
+        "from tourn_header as t, clubs " \
+        "where club_id = %s and t.type=5 and t.city_id = clubs.city_id group by club_id  order by club_id"
 
     select_rate_forecast = \
         "select player_id, firstname, lastname, surname, city_name, name as tourn_name, tourn_id, " \

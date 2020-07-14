@@ -43,10 +43,10 @@ def addPlayer(player: AddPlayer) -> int:
     return plid
 
 
-def getSiriusList():
+def getClubList(club_id):
     result = []
     with BaseIFace() as base:
-        for player in base.loadList(2):
+        for player in base.loadList(100+club_id):
             result.append(
                 {
                     'id': player.id,
@@ -60,7 +60,8 @@ def getSiriusList():
                     'emb': player.emb
                 }
             )
-    return sorted(result, key=lambda x: x['lastname'] + x['firstname'] + x['fathername'])
+        club_name = base.loadClubStat(club_id).clubs[0]['club']
+    return sorted(result, key=lambda x: x['lastname'] + x['firstname'] + x['fathername']), club_name
 
 
 """    
