@@ -51,16 +51,22 @@ class PlayingRecord:
             result = True
         return result
 
-    @property
-    def xml(self) -> et.Element:
+    #@property
+    def xml(self, isFullDate=True) -> et.Element:
         tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
         if self.achievement:
             tournament.set('achievement', '1')
 
-        for field in ['id', 'year', 'name']:
-            locals()[field] = et.SubElement(tournament, field)
-            locals()[field].text = str(self.__dict__[field])
+        tid = et.SubElement(tournament, 'id')
+        tid.text = str(self.id)
+        tdate = et.SubElement(tournament, 'year')
+        if isFullDate:
+            tdate.text = str(self.year)
+        else:
+            tdate.text = str(self.year.year)
+        tname = et.SubElement(tournament, 'name')
+        tname.text = str(self.name)
         for field in ['pb', 'ro', 'mb']:
             if self.__dict__[field]:
                 locals()[field] = et.SubElement(tournament, field)
@@ -309,7 +315,7 @@ class Player:
                 results = et.SubElement(player_record, 'results')
                 for rec in self.results:
                     if rec.placeh > 0:
-                        results.append(rec.xml)
+                        results.append(rec.xml(self.id==1))
 
             if self.positions:
                 admin = et.SubElement(player_record, 'administrative')

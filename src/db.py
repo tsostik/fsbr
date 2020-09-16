@@ -125,7 +125,7 @@ class BaseIFace:
                         record['partner'] = parts_pair[rec['id']]
                     if rec['id'] in parts_team:
                         record['partner'] = parts_team[rec['id']]
-                    pl.addResult(PlayingRecord(**rec))
+                    pl.addResult(PlayingRecord(**record))
 
     def loadExternalIDs(self, pl: Player):
         if pl.id:
