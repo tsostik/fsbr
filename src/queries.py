@@ -75,7 +75,7 @@ class Queries:
                        "tour_date as date, position as title " \
                        "from tds left join tourn_header using (tourn_id) where player_id = {0};"
     select_results = \
-        "select type, tourn_header.tourn_id as id, results.tour_date as year, name, placel, placeh, " \
+        "select type, tourn_header.tourn_id as id, results.tour_date as date, name, placel, placeh, " \
         "pb, ro, if(results.mb > ifnull(results_ses.mb, 0), results.mb, ifnull(results_ses.mb, 0)) as mb, champ_t " \
         "from results " \
         "left join tourn_header using(tourn_id)" \

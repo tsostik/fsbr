@@ -7,11 +7,11 @@ from collections import OrderedDict
 
 
 class PlayingRecord:
-    allowed_fields = ['id', 'year', 'name', 'partner', 'placel', 'placeh', 'pb', 'ro', 'mb', 'champ_t', 'type']
+    allowed_fields = ['id', 'date', 'name', 'partner', 'placel', 'placeh', 'pb', 'ro', 'mb', 'champ_t', 'type']
 
     def __init__(self, **kwargs):
         self.id = None
-        self.year = None
+        self.date = None
         self.name = None
         self.partner = None
         self.placel = None
@@ -51,8 +51,8 @@ class PlayingRecord:
             result = True
         return result
 
-    #@property
-    def xml(self, isFullDate=True) -> et.Element:
+    @property
+    def xml(self) -> et.Element:
         tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
         if self.achievement:
@@ -60,11 +60,11 @@ class PlayingRecord:
 
         tid = et.SubElement(tournament, 'id')
         tid.text = str(self.id)
-        tdate = et.SubElement(tournament, 'year')
-        if isFullDate:
-            tdate.text = str(self.year)
-        else:
-            tdate.text = str(self.year.year)
+        tyear = et.SubElement(tournament, 'year')
+        tyear.text = str(self.date.year)
+        tdate = et.SubElement(tournament, 'date')
+        tdate.text = str(self.date)
+
         tname = et.SubElement(tournament, 'name')
         tname.text = str(self.name)
         for field in ['pb', 'ro', 'mb']:
@@ -315,7 +315,7 @@ class Player:
                 results = et.SubElement(player_record, 'results')
                 for rec in self.results:
                     if rec.placeh > 0:
-                        results.append(rec.xml(self.id==1))
+                        results.append(rec.xml)
 
             if self.positions:
                 admin = et.SubElement(player_record, 'administrative')
