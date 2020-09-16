@@ -395,7 +395,7 @@ class BaseIFace:
                 result.append(RazrChange(**record))
         return result
 
-    def loadClubStat(self, club_id) -> ClubStat:
+    def loadClubStat(self, club_id=None) -> ClubStat:
         result = ClubStat()
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             if club_id:
