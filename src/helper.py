@@ -53,4 +53,6 @@ class Helper:
         result = [None]
         if data is not None:
             result = list(filter(lambda x: x != '', data.replace(",", ' ').replace(";", ' ').split(" ")))
+        if len(result) == 0:
+            result = [None]
         return result
