@@ -658,7 +658,7 @@ class RateForecastTournRecord:
         result = et.Element('record')
         result.text = str(self.ro)
         result.set('tourn_id', str(self.tourn_id))
-        result.set('tourn', self.tourn_name)
+        result.set('tourn', str(self.tourn_name).replace('"', '&quot;'))
         if self.is_of:
             result.set('official', '1')
         return result
