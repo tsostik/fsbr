@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        {% block title %}<title>Default title</title>{% endblock %}
-        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-        <link href="{{url_for('static', filename='css/main.css')}}" rel="stylesheet" type="Text/css">
-        {% block css %}{% endblock %}
-        {% block scripts %}{%endblock %}
-    </head>
-    <body>
-        {% block header %}<header>
-            <span class="home">
-			    <a href="{{url_for('index')}}">На главную</a>
-		    </span>
-            <span class="block_auth">
+<head>
+    {% block title %}<title>Default title</title>{% endblock %}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="{{url_for('static', filename='css/main.css')}}" rel="stylesheet" type="Text/css">
+    {% block css %}{% endblock %}
+    {% block scripts %}{%endblock %}
+</head>
+<body>
+    {% block header %}<header>
+        <span class="home">
+            <a href="{{url_for('index')}}">На главную</a>
+        </span>
+        <span class="block_auth">
             {% if current_user and current_user.is_authenticated %}
-                <span>{{ current_user.display_name }}</span>
-                <span><a href="{{ url_for('logout', next=request.path) }}">Выйти</a></span>
+            <span>{{ current_user.display_name }}</span>
+            <span><a href="{{ url_for('logout', next=request.path) }}">Выйти</a></span>
             {% else %}
-                Войти через:
-                <a href="{{ url_for('oauth_authorize', provider='facebook', next=request.path) }}"><img src="{{url_for('static', filename='facebook.svg')}}"/></a>
-                <a href="{{ url_for('oauth_authorize', provider='google', next=request.path) }}"><img src="{{url_for('static', filename='google.svg')}}"/></a>
+            Войти через:
+            <a href="{{ url_for('oauth_authorize', provider='facebook', next=request.path) }}"><img src="{{url_for('static', filename='facebook.svg')}}"/></a>
+            <a href="{{ url_for('oauth_authorize', provider='google', next=request.path) }}"><img src="{{url_for('static', filename='google.svg')}}"/></a>
             {% endif %}
-            </span>
-        </header>{% endblock %}
-        {% for message in get_flashed_messages() %}<p>{{ message }}</p>{% endfor %}
-        <main>
-            {% block content %}<p>Some content here</p>{% endblock %}
-        </main>
-    </body>
+        </span>
+    </header>{% endblock %}
+    {% for message in get_flashed_messages() %}<p>{{ message }}</p>{% endfor %}
+    <main>
+        {% block content %}<p>Some content here</p>{% endblock %}
+    </main>
+    {% block footer %}<footer>
+        <span class="block_copyright">&copy;2020 Федерация Спортивного Бриджа России </span>
+        <span class="block_policy"><a href='https://db.bridgesport.ru/static/policy.html'>Политика конфиденциальности</a></span>
+    </footer>{% endblock %}
+</body>
 </html>
