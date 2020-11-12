@@ -191,12 +191,26 @@ class Player:
         self.best_rank_dt = None
         self.is_sputnik: bool = False
         self.sputnik_first = None
+        self.categories = ['O']
 
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ':
             self.firstname = ''
         if self.fathername == 'Щ':
             self.fathername = ''
+        # TODO categories definition duplicates with RateRecord
+        # Move it to separate function
+        if self.sex == 0:
+            self.categories.append('W')
+        age = datetime.date.today().year - kwargs['birthdate'].year
+        if age < 26:
+            self.categories.append('J')
+            self.isJ = True
+        if age >= 61:
+            # This age should be revisited later according to EBL policies.
+            # See SCoC for current european Championship
+            self.categories.append('S')
+            self.isS = True
 
     def addPosition(self, position):
         """
@@ -261,6 +275,10 @@ class Player:
             if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
                 photo = et.SubElement(info, 'photo')
                 photo.set('url', 'https://db.bridgesport.ru/' + photo_url)
+            categories = et.SubElement(info, 'categories')
+            for cat in self.categories:
+                category = et.SubElement(categories, 'category')
+                category.text = cat
 
             sportlevel = et.SubElement(player_record, 'sportlevel')
             for field in ['razr', 'pb', 'rate']:
@@ -630,20 +648,20 @@ class RateRecord:
         if self.id == 1936:
             pass
         return OrderedDict([
-                ('id', self.id),
-                ('Фамилия', self.lastname),
-                ('Имя', self.firstname),
-                ('Отчество', self.fathername),
-                ('Город', self.city),
-                ('Разряд', self.razr),
-                ('МБ', (self.mb or 0) + (self.emb or 0)),
-                ('ПБ', self.pb),
-                ('Рейтинг', self.rate),
-                ('*', '*' if self.razr_temp else ''),
-                ('Клуб', self.club_id),
-                ('Ж', 1 if self.isW else ''),
-                ('Ю', 1 if self.isJ else ''),
-                ('C', 1 if self.isS else '')])
+            ('id', self.id),
+            ('Фамилия', self.lastname),
+            ('Имя', self.firstname),
+            ('Отчество', self.fathername),
+            ('Город', self.city),
+            ('Разряд', self.razr),
+            ('МБ', (self.mb or 0) + (self.emb or 0)),
+            ('ПБ', self.pb),
+            ('Рейтинг', self.rate),
+            ('*', '*' if self.razr_temp else ''),
+            ('Клуб', self.club_id),
+            ('Ж', 1 if self.isW else ''),
+            ('Ю', 1 if self.isJ else ''),
+            ('C', 1 if self.isS else '')])
 
 
 class RateForecastTournRecord:

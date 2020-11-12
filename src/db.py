@@ -41,6 +41,7 @@ class BaseIFace:
                             firstname=record['lastname'],
                             fathername=record['surname'],
                             birthdate=record['birthdate'],
+                            sex=record['sex'],
                             city=record['city_name'],
                             mail=Helper.smartSplit(record['mail'])[0],
                             club_id=record['club_id'],
