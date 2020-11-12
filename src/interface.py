@@ -290,6 +290,10 @@ class Player:
             if self.emb:
                 emb = et.SubElement(sportlevel, 'emb')
                 emb.text = str(self.emb)
+                if self.mb < self.emb * 2:
+                    cmd = et.SubElement(sportlevel, 'cmb')
+                    cmd.text = str(self.mb + round( float( self.mb )/2 - 0.01))
+                    pass
 
             if self.razr_temp:
                 locals()['razr'].set('temp', '1')
@@ -363,13 +367,15 @@ class Player:
             else:
                 name = self.lastname + (' ' + self.firstname if self.firstname else '') + \
                        (' ' + self.fathername if self.fathername else '')
+            result['id'] = self.id
             result['name'] = name
             result['city'] = self.city
             result['razr'] = self.razr
             result['rate'] = self.rate
+            result['categories'] = self.categories
             photo_url = f'foto/{self.id}.jpg'
             if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
-                result['photo'] = 'http://bridgesport.ru/players/' + photo_url
+                result['photo'] = 'https://db.bridgesport.ru/' + photo_url
         return result
 
 
