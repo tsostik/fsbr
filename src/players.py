@@ -29,17 +29,20 @@ def getPlayerInfoJSON(player_id: int):
 
 
 def addPlayer(player: AddPlayer) -> int:
-    new_player = Player(firstname=player.firstname.data,
-                        lastname=player.lastname.data,
-                        fathername=player.fathername.data,
-                        sex=player.sex.data,
-                        birthdate=player.birthdate.data,
-                        city=player.city.data,
-                        is_sputnik=player.is_sputnik.data,
-                        sputnik_first=player.sputnik_first.data)
+    try:
+        new_player = Player(firstname=player.firstname.data,
+                            lastname=player.lastname.data,
+                            fathername=player.fathername.data,
+                            sex=player.sex.data,
+                            birthdate=player.birthdate.data,
+                            city=player.city.data,
+                            is_sputnik=player.is_sputnik.data,
+                            sputnik_first=player.sputnik_first.data)
 
-    with BaseIFace() as base:
-        plid = base.addNewPlayer(new_player, current_user.fsbr, player.notes.data)
+        with BaseIFace() as base:
+            plid = base.addNewPlayer(new_player, current_user.fsbr, player.notes.data)
+    except Exception:
+        plid = -1
     return plid
 
 
