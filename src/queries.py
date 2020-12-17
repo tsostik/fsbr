@@ -36,7 +36,7 @@ class Queries:
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
     select_sirius = \
         "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \
-        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
+        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb, ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
         "firstname < 'А' as isLatin " \
         "from players " \
         "left join cities using (city_id) " \
@@ -44,6 +44,22 @@ class Queries:
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id) " \
         "where players.state in (1, 2, 4, 5) and club_id=%s " \
+        "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
+
+    select_sputnik = \
+        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \
+        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb, ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
+        "firstname < 'А' as isLatin " \
+        "from players " \
+        "left join cities using (city_id) " \
+        "left join ratelist on player_id=id " \
+        "left join " + select_pb + "using(player_id) " \
+        "left join " + select_mb + "using(player_id) " \
+        "where player_id in " \
+        "(select player_id from questionaries where is_sputnik = 1 union all " \
+        " select player_id from students where sputnik = 1) " \
+        "and players.state in (1, 2, 4, 5) " \
+        "having mb > 0 " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
     select_rate = \
@@ -76,7 +92,8 @@ class Queries:
                        "from tds left join tourn_header using (tourn_id) where player_id = {0};"
     select_results = \
         "select type, tourn_header.tourn_id as id, results.tour_date as date, name, placel, placeh, " \
-        "pb, ro, if(results.mb > ifnull(results_ses.mb, 0), results.mb, ifnull(results_ses.mb, 0)) as mb, champ_t " \
+        "pb, ro, if(results.mb > ifnull(results_ses.mb, 0), results.mb, ifnull(results_ses.mb, 0)) as mb, " \
+        "ifnull(champ_t, 0) as champ_t " \
         "from results " \
         "left join tourn_header using(tourn_id)" \
         "left join results_ses on tourn_id = main_tourn_id and results.player_id = results_ses.player_id " \

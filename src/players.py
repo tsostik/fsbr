@@ -67,6 +67,27 @@ def getClubList(club_id):
     return sorted(result, key=lambda x: x['lastname'] + x['firstname'] + x['fathername']), club_name
 
 
+def getSputnik():
+    result = []
+    with BaseIFace() as base:
+        for player in base.loadList(3):
+            result.append(
+                {
+                    'id': player.id,
+                    'lastname': player.lastname,
+                    'firstname': player.firstname,
+                    'fathername': player.fathername,
+                    'city': player.city,
+                    'razr': str(player.razr) + ('*' if player.razr_temp else ""),
+                    'rate': player.rate,
+                    'mb': player.mb,
+                    'emb': player.emb
+                }
+            )
+        club_name = "Спутник"
+    return sorted(result, key=lambda x: x['lastname'] + x['firstname'] + x['fathername']), club_name
+
+
 """    
     players = base.loadPlayers()
     answer = ET.Element("players")

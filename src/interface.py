@@ -202,16 +202,19 @@ class Player:
         # Move it to separate function
         if self.sex == 0:
             self.categories.append('W')
-        if self.birthdate is not None:
-            age = datetime.date.today().year - self.birthdate.year
-            if age < 26:
-                self.categories.append('J')
-                self.isJ = True
-            if age >= 61:
-                # This age should be revisited later according to EBL policies.
-                # See SCoC for current european Championship
-                self.categories.append('S')
-                self.isS = True
+        try:
+            if hasattr(self.birthdate, "year") :
+                age = datetime.date.today().year - self.birthdate.year
+                if age < 26:
+                    self.categories.append('J')
+                    self.isJ = True
+                if age >= 61:
+                    # This age should be revisited later according to EBL policies.
+                    # See SCoC for current european Championship
+                    self.categories.append('S')
+                    self.isS = True
+        except AttributeError:
+            pass
 
     def addPosition(self, position):
         """

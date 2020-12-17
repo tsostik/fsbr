@@ -284,7 +284,8 @@ class BaseIFace:
             {
                 0: Queries.select_rate,
                 1: Queries.select_fullList,
-                2: Queries.select_sirius
+                2: Queries.select_sirius,
+                3: Queries.select_sputnik
             }
         result = []
         club_id = None
