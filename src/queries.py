@@ -14,7 +14,7 @@ class Queries:
     select_player = \
         "select player_id, p.firstname as firstname, p.lastname as lastname, p.surname as surname, " \
         "p.birthdate as birthdate, p.sex as sex, city_name, razr, razr_coeff, q.mail as mail, club_id, " \
-        "ifnull(rate, 0) as rate, place, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb " \
+        "ifnull(rate, 0) as rate, place, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, state " \
         "from players as p left join questionaries as q using (player_id) " \
         "left join cities using (city_id) " \
         "left join " \
@@ -26,13 +26,13 @@ class Queries:
     select_fullList = \
         "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
-        "firstname < 'А' as isLatin " \
+        "firstname < 'А' as isLatin, state " \
         "from players " \
         "left join cities using (city_id) " \
         "left join ratelist on player_id=id " \
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id) " \
-        "where players.state in (1, 2, 4, 5) " \
+        "where players.state in (1, 2, 3, 4, 5) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
     select_sirius = \
         "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \

@@ -52,6 +52,8 @@ class BaseIFace:
                             pb=record['pb'],
                             mb=record['mb'],
                             emb=record['emb'])
+                if 'state' in record:
+                    pl.state = record['state']
             else:
                 pl = Player()
         return pl
@@ -150,7 +152,7 @@ class BaseIFace:
 
     def loadPlayers(self):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = Queries.select_player.format("state in (1, 2, 4, 5)")
+            sql = Queries.select_player.format("state in (1, 2, 3, 4, 5)")
             cursor.execute(sql)
             result = []
             for record in cursor.fetchall():
@@ -168,6 +170,8 @@ class BaseIFace:
                             pb=record['pb'],
                             mb=record['mb'],
                             emb=record['emb'])
+                if 'state' in record:
+                    pl.state = record['state']
                 result.append(pl)
         return result
 
@@ -280,6 +284,8 @@ class BaseIFace:
         # kind: 0 - обычный
         #       1 - полный список
         #       2 - Сириус
+        #       3 - Спутник
+        #       100+club_id - игроки из клуба
         kind_to_query = \
             {
                 0: Queries.select_rate,
@@ -311,6 +317,8 @@ class BaseIFace:
                                     pb=record['pb'],
                                     mb=record['mb'],
                                     emb=record['emb'])
+                if 'state' in record:
+                    player.state = record['state']
                 result.append(player)
         return result
 

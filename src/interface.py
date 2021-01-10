@@ -158,7 +158,7 @@ class AdminPos:
 class Player:
     # Full data for player history
     allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'sex', 'city', 'mail', 'club_id',
-                      'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb',
+                      'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb', 'state'
                       'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt', 'is_sputnik', 'sputnik_first']
 
     def __init__(self, **kwargs):
@@ -192,6 +192,7 @@ class Player:
         self.is_sputnik: bool = False
         self.sputnik_first = None
         self.categories = ['O']
+        self.state = None
 
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ':
@@ -279,15 +280,24 @@ class Player:
             if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
                 photo = et.SubElement(info, 'photo')
                 photo.set('url', 'https://db.bridgesport.ru/' + photo_url)
-            categories = et.SubElement(info, 'categories')
-            for cat in self.categories:
-                category = et.SubElement(categories, 'category')
-                category.text = cat
+            isDead = self.state == 3
+            if isDead:
+                player_record.set('died', '1')
+            else:
+                categories = et.SubElement(info, 'categories')
+                for cat in self.categories:
+                    category = et.SubElement(categories, 'category')
+                    category.text = cat
+
 
             sportlevel = et.SubElement(player_record, 'sportlevel')
-            for field in ['razr', 'pb', 'rate']:
-                locals()[field] = et.SubElement(sportlevel, field)
-                locals()[field].text = str(self.__dict__[field])
+            razr = et.SubElement(sportlevel, 'razr')
+            razr.text = str(self.razr)
+            pb = et.SubElement(sportlevel, 'pb')
+            pb.text = str(self.pb)
+            if not isDead:
+                rate = et.SubElement(sportlevel, 'rate')
+                rate.text = str(self.rate)
 
             mb = et.SubElement(sportlevel, 'mb')
             mb.text = str(self.mb + (self.emb if self.emb else 0))
@@ -303,21 +313,23 @@ class Player:
                 locals()['razr'].set('temp', '1')
 
             rstat = et.SubElement(player_record, 'stat')
-            position = et.SubElement(rstat, 'RateRank')
-            if self.rate_rank:
-                position.text = str(self.rate_rank)
-            else:
-                position.text = "-"
-            bestpos = et.SubElement(rstat, 'BestRateRank')
-            bestrate = et.SubElement(rstat, 'BestRate')
-            if self.best_rank:
-                bestpos.set('date', self.best_rank_dt.strftime("%Y-%m-%d"))
-                bestpos.text = str(self.best_rank)
-                bestrate.set('date', self.best_rate_dt.strftime("%Y-%m-%d"))
-                bestrate.text = str(self.best_rate)
-            else:
-                bestpos.text = "-"
-                bestrate.text = "-"
+            if not isDead:
+                position = et.SubElement(rstat, 'RateRank')
+                if self.rate_rank:
+                    position.text = str(self.rate_rank)
+                else:
+                    position.text = "-"
+            if not isDead or self.best_rank:
+                bestpos = et.SubElement(rstat, 'BestRateRank')
+                bestrate = et.SubElement(rstat, 'BestRate')
+                if self.best_rank:
+                    bestpos.set('date', self.best_rank_dt.strftime("%Y-%m-%d"))
+                    bestpos.text = str(self.best_rank)
+                    bestrate.set('date', self.best_rate_dt.strftime("%Y-%m-%d"))
+                    bestrate.text = str(self.best_rate)
+                else:
+                    bestpos.text = "-"
+                    bestrate.text = "-"
 
             if self.wbf_id or self.acbl_id or self.gambler_nick or self.bbo_nick:
                 ext = et.SubElement(player_record, 'IDs')
@@ -556,7 +568,7 @@ class Tournament:
 class RateRecord:
     # One record in full list or rate list
     allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'city', 'club_id',
-                      'razr', 'razr_temp', 'pb', 'rate', 'mb', 'emb']
+                      'razr', 'razr_temp', 'pb', 'rate', 'mb', 'emb', 'state']
 
     def __init__(self, **kwargs):
         self.id = None
@@ -575,6 +587,7 @@ class RateRecord:
         self.isW = False
         self.isJ = False
         self.isS = False
+        self.state = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ':
             self.firstname = ''
@@ -624,8 +637,11 @@ class RateRecord:
         emb.text = str(self.emb)
         pb = et.SubElement(result, 'pb')
         pb.text = str(self.pb)
-        rate = et.SubElement(result, 'rate')
-        rate.text = str(self.rate)
+        if self.state == 3:
+            result.set('died', '1')
+        else:
+            rate = et.SubElement(result, 'rate')
+            rate.text = str(self.rate)
         return result
 
     @property
