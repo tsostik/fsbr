@@ -133,7 +133,7 @@ def get_sputnik_list():
 @app.route('/misc/clubs/<int:club_id>/')
 def get_club_list(club_id):
     res, name = getClubList(club_id)
-    return render_template('playerslist.htm', players=res, extratitle='клуба {0}'.format(name) )
+    return render_template('playerslist.htm', players=res, extratitle='клуба {0}'.format(name))
 
 
 # маршруты для бэкенда rest api TODO вынести в отдельный файл
@@ -143,7 +143,7 @@ def player_xml(player_id):
     start_time = time.perf_counter()
     res = getPlayerXml(player_id)
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/players/<int:player_id>/info/')
@@ -166,7 +166,7 @@ def rate_tournaments(year: int = 0):
     start_time = time.perf_counter()
     res = getRateTourns(year)
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/tourns/<int:tournament_id>/')
@@ -175,7 +175,7 @@ def tournament_xml(tournament_id):
     start_time = time.perf_counter()
     res = getTournamentXml(tournament_id)
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/tourns/')
@@ -184,7 +184,7 @@ def tournament_list_xml():
     start_time = time.perf_counter()
     res = getTournamentList()
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/tourns/families/xml/')
@@ -193,7 +193,7 @@ def families_list(family_id=None):
     start_time = time.perf_counter()
     res = getFamiliesList(family_id)
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/rate/fulllist/')
@@ -202,7 +202,7 @@ def fullList_xml():
     start_time = time.perf_counter()
     res = getFullList()
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/rate/')
@@ -220,7 +220,7 @@ def rate_xml(rdate: str = None):
             dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
     res = getRate(dt)
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/rate/forecast/')
@@ -229,7 +229,7 @@ def rate_forecast_xml():
     start_time = time.perf_counter()
     res = getRateForecast()
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/misc/razrchange/')
@@ -247,7 +247,7 @@ def razr_change(date: str = None):
             dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
     res = getRazrChange(dt)
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/misc/clubs/')
@@ -256,7 +256,7 @@ def clubs():
     start_time = time.perf_counter()
     res = getClubStat()
     res.set('generated', str(time.perf_counter() - start_time))
-    return Response(et.tostring(res, encoding='unicode', pretty_print=True), mimetype='text/xml')
+    return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
 @app.route('/misc/ListXL/')

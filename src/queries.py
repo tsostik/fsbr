@@ -13,7 +13,7 @@ class Queries:
     # TODO: select_player and select_fullList are very similar. Refactor to reduce code duplication
     select_player = \
         "select player_id, p.firstname as firstname, p.lastname as lastname, p.surname as surname, " \
-        "p.birthdate as birthdate, p.sex as sex, city_name, razr, razr_coeff, q.mail as mail, club_id, " \
+        "p.birthdate as birthdate, p.sex as sex, city_name, razr, razr_coeff, q.mail as mail, p.club_id as club_id, " \
         "ifnull(rate, 0) as rate, place, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, state " \
         "from players as p left join questionaries as q using (player_id) " \
         "left join cities using (city_id) " \
