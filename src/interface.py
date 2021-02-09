@@ -195,9 +195,9 @@ class Player:
         self.state = None
 
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
-        if self.firstname == 'Щ':
+        if self.firstname == 'Щ' or self.firstname is None:
             self.firstname = ''
-        if self.fathername == 'Щ':
+        if self.fathername == 'Щ' or self.firstname is None:
             self.fathername = ''
         # TODO categories definition duplicates with RateRecord
         # Move it to separate function
@@ -589,9 +589,9 @@ class RateRecord:
         self.isS = False
         self.state = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
-        if self.firstname == 'Щ':
+        if (self.firstname == 'Щ') or (self.firstname is None):
             self.firstname = ''
-        if self.fathername == 'Щ':
+        if (self.fathername == 'Щ') or (self.firstname is None):
             self.fathername = ''
         self.shortname = '{0} {1}.{2}.'.format(self.lastname,
                                                (self.firstname[0] if len(self.firstname) > 0 else ''),
