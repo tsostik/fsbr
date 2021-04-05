@@ -283,15 +283,16 @@ class BaseIFace:
     def loadList(self, kind=0):
         # kind: 0 - обычный
         #       1 - полный список
-        #       2 - Сириус
         #       3 - Спутник
+        #       4 - Сириус
         #       100+club_id - игроки из клуба
         kind_to_query = \
             {
                 0: Queries.select_rate,
                 1: Queries.select_fullList,
-                2: Queries.select_sirius,
-                3: Queries.select_sputnik
+                2: Queries.select_club_players,
+                3: Queries.select_sputnik,
+                4: Queries.select_sirius
             }
         result = []
         club_id = None

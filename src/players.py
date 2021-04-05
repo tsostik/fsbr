@@ -67,10 +67,15 @@ def getClubList(club_id):
     return sorted(result, key=lambda x: x['lastname'] + x['firstname'] + x['fathername']), club_name
 
 
-def getSputnik():
+def getStudents(kind:str):
     result = []
+    if kind=='sputnik':
+        query_kind = 3
+    else:
+        query_kind = 4
+
     with BaseIFace() as base:
-        for player in base.loadList(3):
+        for player in base.loadList(query_kind):
             result.append(
                 {
                     'id': player.id,

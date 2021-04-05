@@ -34,7 +34,8 @@ class Queries:
         "left join " + select_mb + "using(player_id) " \
         "where players.state in (1, 2, 3, 4, 5) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
-    select_sirius = \
+
+    select_club_players = \
         "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb, ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
         "firstname < 'А' as isLatin " \
@@ -59,7 +60,21 @@ class Queries:
         "(select player_id from questionaries where is_sputnik = 1 union all " \
         " select player_id from students where sputnik = 1) " \
         "and players.state in (1, 2, 4, 5) " \
-        "having mb > 0 " \
+        "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
+
+    select_sirius = \
+        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \
+        "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb, ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
+        "firstname < 'А' as isLatin " \
+        "from players " \
+        "left join cities using (city_id) " \
+        "left join ratelist on player_id=id " \
+        "left join " + select_pb + "using(player_id) " \
+        "left join " + select_mb + "using(player_id) " \
+        "where player_id in " \
+        "(select player_id from questionaries where is_sirius = 1 union all " \
+        " select player_id from students where sirius = 1) " \
+        "and players.state in (1, 2, 4, 5) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
     select_rate = \
