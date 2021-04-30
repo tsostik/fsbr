@@ -13,6 +13,7 @@ def getPlayerXml(player_id):
         base.loadOtherRecords(player)
         base.loadExternalIDs(player)
         base.loadRateStat(player)
+        base.loadClubMb(player)
     return player.xml
 
 

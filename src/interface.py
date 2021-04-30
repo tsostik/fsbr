@@ -193,6 +193,7 @@ class Player:
         self.sputnik_first = None
         self.categories = ['O']
         self.state = None
+        self.club_stat = []
 
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ' or self.firstname is None:
@@ -259,6 +260,9 @@ class Player:
         self.best_rate_dt = best_rate_date
         self.best_rank = best_rank
         self.best_rank_dt = best_rank_date
+
+    def addClubStatRecord(self, record: dict):
+        self.club_stat.append(record)
 
     @property
     def xml(self) -> et.Element:
@@ -354,6 +358,24 @@ class Player:
                 for rec in self.results:
                     if rec.placeh > 0:
                         results.append(rec.xml)
+            if self.club_stat:
+                pass
+                clubStat = et.SubElement(player_record, 'cubMbStatistics')
+                for rec in self.club_stat:
+                    statRecord = et.SubElement(clubStat, 'record')
+                    statDate = et.SubElement(statRecord, 'date')
+                    #statDate.text = str(rec['date'])
+                    statDate.text = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                                     'Июль', 'Август', 'Сентябрь','Октябрь', 'Ноябрь', 'Декабрь',][rec['date'].month-1] + \
+                        ' ' + str(rec['date'].year)
+                    statName = et.SubElement(statRecord, 'name')
+                    statName.text = str(rec['name'])
+                    if(rec['mb']):
+                        statMB = et.SubElement(statRecord, 'mb')
+                        statMB.text = str(rec['mb'])
+                    if (rec['emb']):
+                        statEMB = et.SubElement(statRecord, 'emb')
+                        statEMB.text = str(rec['emb'])
 
             if self.positions:
                 admin = et.SubElement(player_record, 'administrative')

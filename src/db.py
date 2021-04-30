@@ -150,6 +150,14 @@ class BaseIFace:
                     pl.setRateStat(record['best_rate'], record['best_rate_date'],
                                    record['best_rank'], record['best_rank_date'])
 
+    def loadClubMb(self, pl: Player):
+        if pl.id:
+            with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = Queries.select_club_mb_stat.format(pl.id)
+                cursor.execute(sql)
+                for record in cursor.fetchall():
+                    pl.addClubStatRecord(record)
+
     def loadPlayers(self):
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = Queries.select_player.format("state in (1, 2, 3, 4, 5)")
