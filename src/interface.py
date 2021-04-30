@@ -493,7 +493,7 @@ class TournamentRecordTeam(TournamentRecord):
 
 class Tournament:
     # Full data of a tournament result
-    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'parent_id', 'family', 'is_show']
+    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'family', 'is_show']
     types = {1: "Individual", 2: "Pair", 3: "Team", 4: "Session", 5: "Club", 6: "Festival"}
 
     def __init__(self, **kwargs):
@@ -503,8 +503,7 @@ class Tournament:
         self.start = None
         self.end = None
         self.city = None
-        self.parent_id = None
-        self.parent_name = None
+        self.ancestors = None
         self.family = None
         self.nested = []
         self.participants = []
@@ -530,10 +529,14 @@ class Tournament:
                     nested_tournament = et.SubElement(nested, 'tournament')
                     nested_tournament.set('id', str(child.id))
                     nested_tournament.text = str(child.name)
-            if self.parent_id:
-                parent = et.SubElement(tournament, 'parent')
-                parent.set('id', str(self.parent_id))
-                parent.text = self.parent_name
+            ancestor_level: int = 0
+            for ancestor in self.ancestors:
+                parent = et.SubElement(tournament, 'parent'+(str(ancestor_level) if ancestor_level else ''))
+                parent.set('id', str(ancestor['id']))
+                if ancestor['family']:
+                    parent.set('family', str(ancestor['family']))
+                parent.text = ancestor['name']
+                ancestor_level +=1
             info = et.SubElement(tournament, 'info')
             for field in ['name', 'city', 'start', 'end']:
                 locals()[field] = et.SubElement(info, field)
@@ -550,8 +553,8 @@ class Tournament:
     def xmlShort(self) -> et.Element:
         result = et.Element('tournament')
         result.set('id', str(self.id))
-        if self.parent_id:
-            result.set('parent', str(self.parent_id))
+        if self.ancestors:
+            result.set('parent', str(self.ancestors[0]['parent_id']))
         if self.family:
             result.set('family', str(self.family))
         if self.is_show:

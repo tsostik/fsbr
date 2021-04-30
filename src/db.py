@@ -185,15 +185,24 @@ class BaseIFace:
                 cursor.execute(sql)
                 for record in cursor.fetchall():
                     tourn.nested.append(Tournament(**record))
-                if tourn.parent_id is not None and tourn.parent_id > 0:
-                    sql = Queries.select_tourn.format(tourn.parent_id)
-                    cursor.execute(sql)
-                    parent = cursor.fetchone()
-                    if parent:
-                        tourn.parent_name = parent['name']
+                tourn.ancestors = self.loadAncestors(tid)
             else:
                 tourn = Tournament()
         return tourn
+
+    def loadAncestors(self, tid: int):
+        result = []
+        id = tid
+        with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            while id:
+                sql = Queries.select_tourn_meta.format(id)
+                if cursor.execute(sql):
+                    res = cursor.fetchone()
+                    result.append(res)
+                    id = res['parent_id']
+                else:
+                    id = None
+        return result[1:] #first element is the tournament itself
 
     def loadIndividualParticipants(self, tourn: Tournament):
         if tourn.id:
