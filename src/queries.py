@@ -6,10 +6,12 @@ class Queries:
                 "from results " \
                 "group by player_id) " \
                 "as sel_pb "
+
     select_mb = "(select r.player_id, sum(if( r.mb > ifnull(s.mb, 0), r.mb, ifnull(s.mb, 0))) as mb_ " \
                 "from results as r left join results_ses as s on " \
                 "( (r.player_id = s.player_id) and (r.tourn_id = s.main_tourn_id) ) group by player_id )" \
                 "as sel_mb "
+
     # TODO: select_player and select_fullList are very similar. Refactor to reduce code duplication
     select_player = \
         "select player_id, p.firstname as firstname, p.lastname as lastname, p.surname as surname, " \
@@ -23,6 +25,7 @@ class Queries:
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id)" \
         "where {0};"
+
     select_fullList = \
         "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
@@ -100,11 +103,15 @@ class Queries:
 
     select_external_ids = "select wbf as wbf_id, acbl as acbl_id, gambler as gambler_nick, bbo as bbo_nick " \
                           "from external_ids where player_id = {0};"
+
     select_admin = "select year_s as since, year_f as till, position as title, comitee as committee " \
-                   "from admin_pos where player_id = {0};"
+                   "from admin_pos where player_id = {0} " \
+                   "order by if(till=0, 9999, till) desc, since desc"
+
     select_directing = "select tds.tourn_id as id, tourn_header.name as tournament, " \
                        "tour_date as date, position as title " \
                        "from tds left join tourn_header using (tourn_id) where player_id = {0};"
+
     select_results = \
         "select type, tourn_header.tourn_id as id, results.tour_date as date, name, placel, placeh, " \
         "pb, ro, if(results.mb > ifnull(results_ses.mb, 0), results.mb, ifnull(results_ses.mb, 0)) as mb, " \
@@ -113,24 +120,29 @@ class Queries:
         "left join tourn_header using(tourn_id)" \
         "left join results_ses on tourn_id = main_tourn_id and results.player_id = results_ses.player_id " \
         "where type in (1, 2, 3) and results.player_id = {0} order by results.tour_date desc;"
+
     select_other = \
         "select events.event_id as id, event_name as event, year(event_date) as year, position as title " \
-        "from events_part left join events using (event_id) where player_id = {0};"
+        "from events_part left join events using (event_id) where player_id = {0} order by event_date desc"
 
     select_tourn = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, " \
                    "tour_date as end, city_name as city, tounr_pair as parent_id, is_show " \
                    "from tourn_header left join cities using (city_id) " \
                    "left join tourn_site_data using (tourn_id) " \
                    "where tourn_id = {0};"
+
     select_all_tourns = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, "  \
                         "tour_date as end, city_name as city, tounr_pair as parent_id, family, is_show " \
                         "from tourn_header left join cities using (city_id) " \
                         "left join tourn_site_data using (tourn_id) " \
                         "where type != 5"
+
     select_tourn_meta = "select tourn_id as id, name, tounr_pair as parent_id, family " \
                         "from tourn_header where tourn_id = {0}"
+
     select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
                  "from tourn_ind left join players on team_id = player_id where tour_id = {0};"
+
     select_pair = \
         "select placeh, placel, pb, ro, mb, result, " \
         "p1.player_id as id1, p1.firstname as first1, p1.lastname as last1, p1.surname as sur1, " \
@@ -139,6 +151,7 @@ class Queries:
         "left join players as p1 on player1 = p1.player_id " \
         "left join players as p2 on player2 = p2.player_id " \
         "where tour_id = {0};"
+
     select_teams = \
         "select placeh, placel, pb, ro, mb, result, teams.team_id as tid, team_name, " \
         "players.player_id as plid, firstname, lastname, surname " \
@@ -147,12 +160,14 @@ class Queries:
         "left join tourn_team using(team_id) " \
         "left join players using (player_id) " \
         "where tour_id = {0};"
+
     select_teams_nq = \
         "select teams.team_id as tid, team_name, players.player_id as plid, firstname, lastname, surname " \
         "from team_players_nonqual " \
         "left join teams using (team_id) " \
         "left join players using (player_id) " \
         "where team_id in (select team_id from tourn_team where tour_id = {0});"
+
     select_session = \
         "select placeh, placel, mb, result, " \
         "p1.player_id as id1, p1.firstname as first1, p1.lastname as last1, p1.surname as sur1, " \
