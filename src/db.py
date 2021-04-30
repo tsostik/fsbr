@@ -382,7 +382,9 @@ class BaseIFace:
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             cursor.execute(sql)
             for record in cursor.fetchall():
-                result.append(Tournament(**record))
+                tourn = Tournament(**record)
+                tourn.ancestors = [{'parent_id' : record['parent_id']}]
+                result.append(tourn)
         return result
 
     def loadRateDates(self):

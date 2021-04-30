@@ -553,7 +553,7 @@ class Tournament:
     def xmlShort(self) -> et.Element:
         result = et.Element('tournament')
         result.set('id', str(self.id))
-        if self.ancestors:
+        if self.ancestors and self.ancestors[0]['parent_id']:
             result.set('parent', str(self.ancestors[0]['parent_id']))
         if self.family:
             result.set('family', str(self.family))
