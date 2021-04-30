@@ -360,7 +360,7 @@ class Player:
                         results.append(rec.xml)
             if self.club_stat:
                 pass
-                clubStat = et.SubElement(player_record, 'cubMbStatistics')
+                clubStat = et.SubElement(player_record, 'clubMbStatistics')
                 for rec in self.club_stat:
                     statRecord = et.SubElement(clubStat, 'record')
                     statDate = et.SubElement(statRecord, 'date')
