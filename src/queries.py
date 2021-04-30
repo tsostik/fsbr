@@ -126,7 +126,7 @@ class Queries:
                         "tour_date as end, city_name as city, tounr_pair as parent_id, family, is_show " \
                         "from tourn_header left join cities using (city_id) " \
                         "left join tourn_site_data using (tourn_id) " \
-                        "where type != 5"
+                        "where type not in (4,5)"
     select_tourn_meta = "select tourn_id as id, name, tounr_pair as parent_id, family " \
                         "from tourn_header where tourn_id = {0}"
     select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
