@@ -189,7 +189,7 @@ class BaseIFace:
             if cursor.execute(sql):
                 tourn = Tournament(**cursor.fetchone())
                 # Load nested tournaments
-                sql = "select tourn_id as id, name from tourn_header where tounr_pair = {0};".format(tourn.id)
+                sql = "select tourn_id as id, name from tourn_header where parent = {0};".format(tourn.id)
                 cursor.execute(sql)
                 for record in cursor.fetchall():
                     tourn.nested.append(Tournament(**record))

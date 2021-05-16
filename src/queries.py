@@ -126,18 +126,19 @@ class Queries:
         "from events_part left join events using (event_id) where player_id = {0} order by event_date desc"
 
     select_tourn = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, " \
-                   "tour_date as end, city_name as city, tounr_pair as parent_id, is_show " \
+                   "tour_date as end, city_name as city, parent as parent_id, is_show " \
                    "from tourn_header left join cities using (city_id) " \
                    "left join tourn_site_data using (tourn_id) " \
                    "where tourn_id = {0};"
 
-    select_all_tourns = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, "  \
-                        "tour_date as end, city_name as city, tounr_pair as parent_id, family, is_show " \
-                        "from tourn_header left join cities using (city_id) " \
+    select_all_tourns = "select tourn_id as id, type, t.name name, ifnull(tour_date_start, tour_date) as start, "  \
+                        "tour_date as end, city_name as city, parent as parent_id, family, is_show " \
+                        "from tourn_header t left join cities using (city_id) " \
+                        "left join streams h on stream_id = stream " \
                         "left join tourn_site_data using (tourn_id) " \
                         "where type != 5"
 
-    select_tourn_meta = "select tourn_id as id, name, tounr_pair as parent_id, family " \
+    select_tourn_meta = "select tourn_id as id, name, parent as parent_id, get_family(stream) as family " \
                         "from tourn_header where tourn_id = {0}"
 
     select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
@@ -201,10 +202,13 @@ class Queries:
         "where type=5 and (mb > 0 or emb > 0) and player_id = {0} order by date desc"
 
     select_families = \
-        "select family_id, f.name as family_name, " \
-        "t.name as tourn_name, t.tourn_id as tourn_id, t.tour_date as date " \
-        "from tourn_header t left join families f on family_id = family " \
+        "select family_id, f.name as family_name, t.name as tourn_name, t.tourn_id as tourn_id, t.tour_date as date " \
+        "from tourn_header t left join streams s on(stream=stream_id) left join families f on(family=family_id) " \
         "where family is not null {0}"
+    #    "select family_id, f.name as family_name, " \
+    #    "t.name as tourn_name, t.tourn_id as tourn_id, t.tour_date as date " \
+    #    "from tourn_header t left join families f on family_id = get_family(stream) " \
+    #    "where family is not null {0}"
 
     select_razr_change = \
         "select player_id, firstname as lastname, lastname as firstname, surname as fathername, " \
