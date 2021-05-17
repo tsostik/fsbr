@@ -204,7 +204,7 @@ class Queries:
     select_families = \
         "select family_id, f.name as family_name, t.name as tourn_name, t.tourn_id as tourn_id, t.tour_date as date " \
         "from tourn_header t left join streams s on(stream=stream_id) left join families f on(family=family_id) " \
-        "where family is not null {0}"
+        "where family is not null and parent is null {0}"
     #    "select family_id, f.name as family_name, " \
     #    "t.name as tourn_name, t.tourn_id as tourn_id, t.tour_date as date " \
     #    "from tourn_header t left join families f on family_id = get_family(stream) " \
