@@ -35,7 +35,7 @@ class Queries:
         "left join ratelist on player_id=id " \
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id) " \
-        "where players.state in (1, 2, 3, 4, 5) " \
+        "where players.state in (1, 2, 3, 4) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
     select_club_players = \
@@ -47,7 +47,7 @@ class Queries:
         "left join ratelist on player_id=id " \
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id) " \
-        "where players.state in (1, 2, 4, 5) and club_id=%s " \
+        "where players.state in (1, 2, 4) and club_id=%s " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
     select_sputnik = \
@@ -62,7 +62,7 @@ class Queries:
         "where player_id in " \
         "(select player_id from questionaries where is_sputnik = 1 union all " \
         " select player_id from students where sputnik = 1) " \
-        "and players.state in (1, 2, 4, 5) " \
+        "and players.state in (1, 2, 4) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
     select_sirius = \
@@ -77,7 +77,7 @@ class Queries:
         "where player_id in " \
         "(select player_id from questionaries where is_sirius = 1 union all " \
         " select player_id from students where sirius = 1) " \
-        "and players.state in (1, 2, 4, 5) " \
+        "and players.state in (1, 2, 4) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
     select_rate = \
@@ -88,13 +88,13 @@ class Queries:
         "left join cities using (city_id) " \
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id) " \
-        "where players.state in (1, 2, 4, 5) and r_date = {0} " \
+        "where players.state in (1, 2, 4) and r_date = {0} " \
         "order by rate desc, pb desc, firstname asc"
 
     select_find_player = \
         "(select player_id as plid, firstname, lastname, surname, city_name, 0 as is_new " \
         "from players left join cities using(city_id) " \
-        "where state not in (7) and firstname like '%{0}%') " \
+        "where state not in (3, 7) and firstname like '%{0}%') " \
         "union all " \
         "(select new_id as plid, firstname, lastname, surname, city_name, 1 as is_new " \
         "from fsbr_aux.new_players left join cities using(city_id) " \

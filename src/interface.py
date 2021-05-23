@@ -287,6 +287,8 @@ class Player:
             isDead = self.state == 3
             if isDead:
                 player_record.set('died', '1')
+            elif self.state == 5:
+                 player_record.set('hidden', '1')
             else:
                 categories = et.SubElement(info, 'categories')
                 for cat in self.categories:
