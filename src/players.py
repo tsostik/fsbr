@@ -51,6 +51,9 @@ def getClubList(club_id):
     result = []
     with BaseIFace() as base:
         for player in base.loadList(100+club_id):
+            rmb = player.mb + player.emb
+            if player.mb < player.emb*2:
+                rmb = round(float(player.mb) * 1.5 - 0.01)
             result.append(
                 {
                     'id': player.id,
@@ -61,7 +64,8 @@ def getClubList(club_id):
                     'razr': str(player.razr) + ('*' if player.razr_temp else ""),
                     'rate': player.rate,
                     'mb': player.mb,
-                    'emb': player.emb
+                    'emb': player.emb,
+                    'rmb': rmb
                 }
             )
         club_name = base.loadClubStat(club_id).clubs[0]['club']
@@ -77,6 +81,9 @@ def getStudents(kind:str):
 
     with BaseIFace() as base:
         for player in base.loadList(query_kind):
+            rmb = player.mb + player.emb
+            if player.mb < player.emb*2:
+                rmb = round(float(player.mb) * 1.5 - 0.01)
             result.append(
                 {
                     'id': player.id,
@@ -87,7 +94,8 @@ def getStudents(kind:str):
                     'razr': str(player.razr) + ('*' if player.razr_temp else ""),
                     'rate': player.rate,
                     'mb': player.mb,
-                    'emb': player.emb
+                    'emb': player.emb,
+                    'rmb': rmb
                 }
             )
         club_name = "Спутник"

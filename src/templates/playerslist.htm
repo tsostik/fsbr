@@ -14,11 +14,12 @@
         <th rowspan="2">Город</th>
         <th rowspan="2">Разряд</th>
         <th rowspan="2">Рейтинг</th>
-        <th colspan="2">МБ</th>
+        <th colspan="3">МБ</th>
     </tr>
     <tr>
         <th>Оффлайн</th>
         <th>Онлайн</th>
+        <th>В зачет</th>
     </tr>
 {% for player in players %}
     <tr>
@@ -33,5 +34,6 @@
         <td>{{player['rate']}}</td>
         <td>{{player['mb']}}</td>
         <td>{{player['emb']}}</td>
+        <td>{{player['rmb']}}</td>
     </tr>{% endfor %}
 </table>{% endblock %}
