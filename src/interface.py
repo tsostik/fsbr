@@ -210,8 +210,8 @@ class Player:
                 if age < 26:
                     self.categories.append('J')
                     self.isJ = True
-                if age >= 61:
-                    # This age should be revisited later according to EBL policies.
+                if age >= 62:
+                    # This age should be reviewed later according to EBL policies.
                     # See SCoC for current european Championship
                     self.categories.append('S')
                     self.isS = True
