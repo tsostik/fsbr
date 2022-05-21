@@ -141,8 +141,11 @@ class Queries:
     select_tourn_meta = "select tourn_id as id, name, parent as parent_id, get_family(stream) as family " \
                         "from tourn_header where tourn_id = {0}"
 
-    select_ind = "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
-                 "from tourn_ind left join players on team_id = player_id where tour_id = {0};"
+    select_ind = \
+        "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \
+        "from tourn_ind left join players on team_id = player_id " \
+        "where tour_id = {0} and placeh > 0 " \
+        "order by placeh asc;"
 
     select_pair = \
         "select placeh, placel, pb, ro, mb, result, " \
@@ -151,7 +154,8 @@ class Queries:
         "from tourn_pair " \
         "left join players as p1 on player1 = p1.player_id " \
         "left join players as p2 on player2 = p2.player_id " \
-        "where tour_id = {0};"
+        "where tour_id = {0} and placeh > 0 " \
+        "order by placeh asc;"
 
     select_teams = \
         "select placeh, placel, pb, ro, mb, result, teams.team_id as tid, team_name, " \
@@ -160,7 +164,8 @@ class Queries:
         "left join teams using (team_id) " \
         "left join tourn_team using(team_id) " \
         "left join players using (player_id) " \
-        "where tour_id = {0};"
+        "where tour_id = {0} and placeh > 0 " \
+        "order by placeh asc;" \
 
     select_teams_nq = \
         "select teams.team_id as tid, team_name, players.player_id as plid, firstname, lastname, surname " \
