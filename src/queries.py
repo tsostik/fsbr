@@ -126,11 +126,12 @@ class Queries:
         "select events.event_id as id, event_name as event, year(event_date) as year, position as title " \
         "from events_part left join events using (event_id) where player_id = {0} order by event_date desc"
 
-    select_tourn = "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, " \
-                   "tour_date as end, city_name as city, parent as parent_id, is_show " \
-                   "from tourn_header left join cities using (city_id) " \
-                   "left join tourn_site_data using (tourn_id) " \
-                   "where tourn_id = {0};"
+    select_tourn = \
+        "select tourn_id as id, type, name, ifnull(tour_date_start, tour_date) as start, " \
+        "tour_date as end, city_name as city, parent as parent_id, is_show, prev_id as prev, next_id as next " \
+        "from tourn_header left join cities using (city_id) " \
+        "left join tourn_site_data using (tourn_id) " \
+        "where tourn_id = {0};"
 
     select_all_tourns = "select tourn_id as id, type, t.name name, ifnull(tour_date_start, tour_date) as start, "  \
                         "tour_date as end, city_name as city, parent as parent_id, family, is_show " \
@@ -139,8 +140,9 @@ class Queries:
                         "left join tourn_site_data using (tourn_id) " \
                         "where type != 5"
 
-    select_tourn_meta = "select tourn_id as id, name, parent as parent_id, get_family(stream) as family " \
-                        "from tourn_header where tourn_id = {0}"
+    select_tourn_meta = \
+        "select tourn_id as id, name, parent as parent_id, get_family(stream) as family " \
+        "from tourn_header where tourn_id = {0}"
 
     select_ind = \
         "select placeh, placel, pb, ro, mb, result, team_id as player_id, firstname, lastname, surname " \

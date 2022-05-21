@@ -532,7 +532,7 @@ class TournamentRecordTeam(TournamentRecord):
 
 class Tournament:
     # Full data of a tournament result
-    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'family', 'is_show']
+    allowed_fields = ['id', 'type', 'name', 'start', 'end', 'city', 'family', 'is_show', 'prev', 'next']
     types = {1: "Individual", 2: "Pair", 3: "Team", 4: "Session", 5: "Club", 6: "Festival"}
 
     def __init__(self, **kwargs):
@@ -547,6 +547,8 @@ class Tournament:
         self.nested = []
         self.participants = []
         self.is_show: Optional[bool] = None
+        self.prev = None
+        self.next = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     def addParticipant(self, participant: TournamentRecord):
@@ -580,6 +582,12 @@ class Tournament:
             for field in ['name', 'city', 'start', 'end']:
                 locals()[field] = et.SubElement(info, field)
                 locals()[field].text = str(self.__dict__[field])
+            if self.prev or self.next:
+                navigation = et.SubElement(tournament, 'navigation')
+                if self.prev:
+                    navigation.set('prev', str(self.prev))
+                if self.next:
+                    navigation.set('next', str(self.next))
             if self.participants:
                 participants = et.SubElement(tournament, 'participants')
                 for part in self.participants:
