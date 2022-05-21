@@ -35,6 +35,8 @@ class PlayingRecord:
             pass
         elif self.champ_t > 1000 and self.placeh <= 3:  # Региональный чемпионат, призовое место
             result = True
+        elif (13 <= self.champ_t <= 14) and self.placeh <= 3: #ЖЧР и ЮЧР не набравшие 16 участников
+            result = True
         elif (20 <= self.champ_t <= 29) and self.placeh <= 3:  # Малый чемпионат России, призовое место
             result = True
         elif self.champ_t == 31 and self.placeh <= 3:  # КЧР, места 1 - 5
@@ -43,10 +45,10 @@ class PlayingRecord:
             result = True
         elif (90 <= self.champ_t < 100) and self.placeh <= 3:  # Неквалифицируемые чемпионаты Европы и Мира
             result = True
-        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 3:
+        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:
             # Парный чемпионат Европы или Мира, места 1-10
             result = True
-        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 3:
+        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:
             # Командный чемпионат Европы или Мира, места 1-8
             result = True
         return result
@@ -158,8 +160,8 @@ class AdminPos:
 class Player:
     # Full data for player history
     allowed_fields = ['id', 'lastname', 'firstname', 'fathername', 'birthdate', 'sex', 'city', 'mail', 'club_id',
-                      'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb', 'state'
-                      'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt', 'is_sputnik', 'sputnik_first']
+                      'razr', 'razr_temp', 'pb', 'rate', 'rate_rank', 'mb', 'emb', 'state', 'quest', 'lifetime',
+                      'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt', 'is_sputnik', 'sputnik_first' ]
 
     def __init__(self, **kwargs):
         self.id = None
@@ -194,6 +196,8 @@ class Player:
         self.categories = ['O']
         self.state = None
         self.club_stat = []
+        self.quest: bool = False
+        self.lifetime = None
 
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ' or self.firstname is None:
@@ -267,14 +271,18 @@ class Player:
 
     @property
     def xml(self) -> et.Element:
+        isDead = self.state == 3
         player_record = et.Element('player')
         player_record.set('id', str(self.id))
         if self.id:
             info = et.SubElement(player_record, 'info')
-            for field in ['lastname', 'firstname', 'fathername', 'city', 'mail']:
+            for field in ['lastname', 'firstname', 'fathername', 'city']:
                 if field in self.__dict__:
                     locals()[field] = et.SubElement(info, field)
                     locals()[field].text = self.__dict__[field]
+            if not isDead:
+                mail = et.SubElement(info, 'mail')
+                mail.text = self.mail
             if self.club_id:
                 club = et.SubElement(info, "club")
                 club.set('id', str(self.club_id))
@@ -285,7 +293,13 @@ class Player:
             if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
                 photo = et.SubElement(info, 'photo')
                 photo.set('url', 'https://db.bridgesport.ru/' + photo_url)
-            isDead = self.state == 3
+            if self.quest:
+                player_record.set('quest', '1')
+            elif not isDead:
+                player_record.set('quest', '0')
+            if self.lifetime is not None:
+                lifetime = et.SubElement(info, 'lifetime')
+                lifetime.text = self.lifetime
             if isDead:
                 player_record.set('died', '1')
             elif self.state == 5:
@@ -622,8 +636,8 @@ class RateRecord:
         if (self.fathername == 'Щ') or (self.firstname is None):
             self.fathername = ''
         self.shortname = '{0} {1}.{2}.'.format(self.lastname,
-                                               (self.firstname[0] if len(self.firstname) > 0 else ''),
-                                               (self.fathername[0] if len(self.fathername) > 0 else ''))
+                                              (self.firstname[0] if  self.firstname else ''),
+                                              (self.fathername[0] if self.fathername else ''))
         if 'sex' in kwargs and kwargs['sex'] == 0:
             self.categories.append('W')
             self.isW = True
@@ -650,7 +664,7 @@ class RateRecord:
         firstname = et.SubElement(result, 'firstname')
         firstname.text = self.firstname
         fathername = et.SubElement(result, 'fathername')
-        fathername.text = self.fathername
+        fathername.text = self.fathername if self.fathername else ''
         city = et.SubElement(result, 'city')
         city.text = self.city
         if self.club_id:

@@ -47,6 +47,7 @@ class BaseIFace:
                             club_id=record['club_id'],
                             razr=razr,
                             razr_temp=razr_temp,
+                            lifetime=record['lifetime'],
                             rate=record['rate'],
                             rate_rank=record['place'],
                             pb=record['pb'],
@@ -54,6 +55,11 @@ class BaseIFace:
                             emb=record['emb'])
                 if 'state' in record:
                     pl.state = record['state']
+                sql=Queries.is_questionary_done.format(plid)
+                cursor.execute(sql)
+                record = cursor.fetchone()
+                if record:
+                    pl.quest = record['cnt'] > 0
             else:
                 pl = Player()
         return pl

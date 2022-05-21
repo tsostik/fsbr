@@ -16,7 +16,8 @@ class Queries:
     select_player = \
         "select player_id, p.firstname as firstname, p.lastname as lastname, p.surname as surname, " \
         "p.birthdate as birthdate, p.sex as sex, city_name, razr, razr_coeff, q.mail as mail, p.club_id as club_id, " \
-        "ifnull(rate, 0) as rate, place, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, state " \
+        "ifnull(rate, 0) as rate, place, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
+        "state, p.lifetime as lifetime " \
         "from players as p left join questionaries as q using (player_id) " \
         "left join cities using (city_id) " \
         "left join " \
@@ -238,6 +239,9 @@ class Queries:
         "from rate_forecast left join players using (player_id) left join cities using (city_id) " \
         "left join tourn_header using (tourn_id) " \
         "order by player_id asc, num asc"
+
+    is_questionary_done = \
+        " select count(1) as cnt from questionaries where player_id={0};"
 
     select_max_id = "select p, n from " \
                     "(select player_id as p from players order by player_id desc limit 1, 1) as s1, " \
