@@ -77,7 +77,7 @@ class Queries:
         "left join " + select_mb + "using(player_id) " \
         "where player_id in " \
         "(select player_id from questionaries where is_sirius = 1 union all " \
-        " select player_id from students where sirius = 1) " \
+        " select player_id from players where club_id = 25 ) " \
         "and players.state in (1, 2, 4) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
