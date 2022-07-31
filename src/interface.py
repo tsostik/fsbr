@@ -638,6 +638,8 @@ class RateRecord:
         self.isJ = False
         self.isS = False
         self.state = None
+        self.quest = False
+        self.mail = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if (self.firstname == 'Щ') or (self.firstname is None):
             self.firstname = ''
@@ -738,7 +740,9 @@ class RateRecord:
             ('Клуб', self.club_id),
             ('Ж', 1 if self.isW else ''),
             ('Ю', 1 if self.isJ else ''),
-            ('C', 1 if self.isS else '')])
+            ('C', 1 if self.isS else ''),
+            ('Анкета', self.quest),
+            ('e-mail', self.mail)])
 
 
 class RateForecastTournRecord:

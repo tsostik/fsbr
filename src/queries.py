@@ -28,15 +28,17 @@ class Queries:
         "where {0};"
 
     select_fullList = \
-        "select player_id, firstname, lastname, surname, city_name, razr, razr_coeff, sex, birthdate, club_id, " \
+        "select p.player_id, p.firstname, p.lastname, p.surname, city_name, p.razr, razr_coeff,p. sex, p.birthdate, " \
+        "p.club_id, q.id as qid, q.mail, " \
         "ifnull(rating, 0) as rate, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
-        "firstname < 'А' as isLatin, state " \
-        "from players " \
+        "p.firstname < 'А' as isLatin, state " \
+        "from players p " \
         "left join cities using (city_id) " \
         "left join ratelist on player_id=id " \
+        "left join questionaries q using (player_id) " \
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id) " \
-        "where players.state in (1, 2, 3, 4) " \
+        "where p.state in (1, 2, 3, 4) " \
         "order by isLatin asc, city_name asc, firstname asc, lastname asc, surname asc"
 
     select_club_players = \

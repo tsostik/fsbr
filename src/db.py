@@ -343,6 +343,10 @@ class BaseIFace:
                                     emb=record['emb'])
                 if 'state' in record:
                     player.state = record['state']
+                if 'qid' in record:
+                    player.quest = True if record['qid'] is not None else False
+                if 'mail' in record:
+                    player.mail = record['mail']
                 result.append(player)
         return result
 
