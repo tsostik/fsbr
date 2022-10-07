@@ -18,7 +18,10 @@ class Queries:
         "p.birthdate as birthdate, p.sex as sex, city_name, razr, razr_coeff, q.mail as mail, p.club_id as club_id, " \
         "ifnull(rate, 0) as rate, place, ifnull(pb_, 0) as pb , ifnull(mb_,0) as mb, ifnull(emb_,0) as emb, " \
         "state, p.lifetime as lifetime " \
-        "from players as p left join questionaries as q using (player_id) " \
+        "from players as p " \
+        "left join (select * from questionaries lq where lq.TIMESTAMP = " \
+        "(select MAX(llq.TIMESTAMP) from questionaries llq where llq.player_id = lq.player_id)) q " \
+        "using(player_id) " \
         "left join cities using (city_id) " \
         "left join " \
         "(select * from rate_history where r_date = (select max(r_date) from rate_history) ) as rt " \
@@ -35,7 +38,9 @@ class Queries:
         "from players p " \
         "left join cities using (city_id) " \
         "left join ratelist on player_id=id " \
-        "left join questionaries q using (player_id) " \
+        "left join (select * from questionaries lq where lq.TIMESTAMP = " \
+        "(select MAX(llq.TIMESTAMP) from questionaries llq where llq.player_id = lq.player_id)) q " \
+        "using(player_id) " \
         "left join " + select_pb + "using(player_id) " \
         "left join " + select_mb + "using(player_id) " \
         "where p.state in (1, 2, 3, 4) " \
