@@ -280,7 +280,7 @@ class Player:
                 if field in self.__dict__:
                     locals()[field] = et.SubElement(info, field)
                     locals()[field].text = self.__dict__[field]
-            if not isDead:
+            if self.mail and not isDead:
                 mail = et.SubElement(info, 'mail')
                 mail.text = self.mail
             if self.club_id:
