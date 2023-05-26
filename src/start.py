@@ -118,25 +118,29 @@ def add_player():
     return answer or render_template('addplayer.htm', form=form)
 
 
+# маршруты для бэкенда rest api TODO вынести в отдельный файл
+#список Сириус
 @app.route('/misc/sirius/')
 def get_sirius_list():
     res, name = getStudents('sirius')
     return render_template('playerslist.htm', players=res, extratitle='клуба {0}'.format(name), skipfather=1)
 
 
+#список Спутник
 @app.route('/misc/sputnik/')
 def get_sputnik_list():
     res, name = getStudents('sputnik')
     return render_template('playerslist.htm', players=res, extratitle='клуба {0}'.format(name), skipfather=1)
 
 
+#список по клубу
 @app.route('/misc/clubs/<int:club_id>/')
 def get_club_list(club_id):
     res, name = getClubList(club_id)
     return render_template('playerslist.htm', players=res, extratitle='клуба {0}'.format(name))
 
 
-# маршруты для бэкенда rest api TODO вынести в отдельный файл
+#Карточка игрока - полный xml
 @app.route('/players/<int:player_id>/')
 @app.route('/players/<int:player_id>/xml/')
 def player_xml(player_id):
@@ -146,6 +150,7 @@ def player_xml(player_id):
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Карточка игрока - краткий json (не используется, делалось для экспериментов)
 @app.route('/players/<int:player_id>/info/')
 def player_info(player_id):
     res = getPlayerInfoJSON(player_id)
@@ -154,6 +159,7 @@ def player_info(player_id):
     return resp
 
 
+#Рейтинговые турниры за год
 @app.route('/tourns/rate/')
 @app.route('/tourns/rate/<int:year>/')
 @app.route('/rate/tourns/')
@@ -169,6 +175,7 @@ def rate_tournaments(year: int = 0):
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Результаты турнира
 @app.route('/tourns/<int:tournament_id>/')
 @app.route('/tourns/<int:tournament_id>/xml/')
 def tournament_xml(tournament_id):
@@ -178,6 +185,7 @@ def tournament_xml(tournament_id):
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Список всех турниров
 @app.route('/tourns/')
 @app.route('/tourns/xml/')
 def tournament_list_xml():
@@ -187,6 +195,7 @@ def tournament_list_xml():
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Список известных семей турниров
 @app.route('/tourns/families/xml/')
 @app.route('/tourns/families/<int:family_id>/xml/')
 def families_list(family_id=None):
@@ -196,6 +205,7 @@ def families_list(family_id=None):
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Полный список (xml)
 @app.route('/rate/fulllist/')
 @app.route('/rate/fulllist/xml/')
 def fullList_xml():
@@ -205,6 +215,7 @@ def fullList_xml():
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Рейтинг на дату. Если дата отсуствует - первое число текущего месяца
 @app.route('/rate/')
 @app.route('/rate/xml/')
 @app.route('/rate/<rdate>/')
@@ -223,6 +234,7 @@ def rate_xml(rdate: str = None):
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Прогноз рейтинга на следующее первое число
 @app.route('/rate/forecast/')
 @app.route('/rate/forecast/xml/')
 def rate_forecast_xml():
@@ -232,6 +244,7 @@ def rate_forecast_xml():
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Изменение разрядов на дату. Если дата отсуствует - первое число текущего месяца
 @app.route('/misc/razrchange/')
 @app.route('/misc/razrchange/xml/')
 @app.route('/misc/razrchange/<date>/')
@@ -250,6 +263,7 @@ def razr_change(date: str = None):
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Список клубов
 @app.route('/misc/clubs/')
 @app.route('/misc/clubs/xml/')
 def clubs():
@@ -259,6 +273,7 @@ def clubs():
     return Response(et.tostring(res, encoding='utf-8', pretty_print=True, xml_declaration=True), mimetype='text/xml')
 
 
+#Полная классификация excel
 @app.route('/misc/ListXL/')
 def excel_list():
     return excel.make_response_from_records(getExcelList(), 'xls', file_name='players')
