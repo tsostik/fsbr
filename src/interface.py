@@ -214,7 +214,7 @@ class Player:
                 if age < 26:
                     self.categories.append('J')
                     self.isJ = True
-                if age >= 62:
+                if age >= 63:
                     # This age should be reviewed later according to EBL policies.
                     # See SCoC for current european Championship
                     # http://www.eurobridge.org/wp-content/uploads/2017/10/EBL-info-corrective-letter-Senior-Age-121017.pdf
