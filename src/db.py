@@ -347,6 +347,12 @@ class BaseIFace:
                     player.quest = True if record['qid'] is not None else False
                 if 'mail' in record:
                     player.mail = record['mail']
+                if 'mb12' in record and record['mb12'] is not None and record['mb12'] > 0:
+                    player.mbstat = {'year'   : record['mb12'],
+                                     'half'   : record['mb6'],
+                                     'quarter': record['mb3'],
+                                     'month'  : record['mb1']
+                                    };
                 result.append(player)
         return result
 

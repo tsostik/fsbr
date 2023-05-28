@@ -640,6 +640,7 @@ class RateRecord:
         self.state = None
         self.quest = False
         self.mail = None
+        self.mbstat = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if (self.firstname == 'Щ') or (self.firstname is None):
             self.firstname = ''
@@ -690,6 +691,12 @@ class RateRecord:
         emb.text = str(self.emb)
         pb = et.SubElement(result, 'pb')
         pb.text = str(self.pb)
+        if self.mbstat:
+            mbstat = et.SubElement(result, 'mbstat')
+            for period in self.mbstat:
+                el = et.SubElement(mbstat, period)
+                el.text = str(self.mbstat[period])
+
         if self.state == 3:
             result.set('died', '1')
         else:
