@@ -51,6 +51,12 @@ class User(UserMixin, db.Model):
         return self.display_name + "<" + str(self.id)+">"
 
 
+class BaseStatus(db.Model):
+    __tablename__='flags'
+    flag = db.Column(db.String(64), primary_key=True)
+    value = db.Column(db.Boolean, nullable=False, unique=False)
+
+
 def find_or_add_user(userinfo):
     if userinfo['origin'] == 'facebook':
         user = User.query.filter_by(facebook_id=userinfo['id']).first()
@@ -78,3 +84,23 @@ def find_or_add_user(userinfo):
 
 def has_permission(user: User, permission: str) -> bool:
     return hasattr(user, 'roles') and permission in user.roles
+
+
+def get_flag(flagname: str) -> bool:
+    flag = BaseStatus.query.filter_by(flag=flagname).first()
+    if flag is not None:
+        return flag.value
+    else:
+        return false
+
+
+def set_flag(name: str, value: bool):
+    flag=BaseStatus()
+    flag.flag=name
+    flag.value=value
+    db.session.add(flag)
+    db.session.commit()
+
+
+def base_unlocked() -> bool:
+    return not get_flag("locked");

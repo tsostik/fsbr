@@ -33,6 +33,7 @@ $(function() {
 </script>
 {% endblock %}
 {% block content %}
+{% if base_unlocked() %}
 {% if has_permission(current_user, 'AddPlayers') %}
 <form action = "" method="post">
     <table>
@@ -50,5 +51,8 @@ $(function() {
 </form>
 {% else %}
 <p>Недостаточно прав для добавления пользователей</p>
+{% endif %}
+{% else %}
+<p>База данных временно заблокирована для обновления. Попробуйте позже.</p>
 {% endif %}
 {% endblock %}

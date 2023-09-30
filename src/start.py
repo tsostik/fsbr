@@ -9,7 +9,7 @@ from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON, 
 from src.rate import getFullList, getRate, getRateForecast, getExcelList
 from src.service import getRateTourns, getRazrChange, getClubStat
 from src.tournaments import getCities, getTournamentList, getTournamentXml, getFamiliesList
-from src.users import User, db as db_users, find_or_add_user, has_permission
+from src.users import User, db as db_users, find_or_add_user, has_permission, base_unlocked
 
 from src.forms import AddPlayer
 from src.oauth import OAuthSignIn
@@ -47,7 +47,7 @@ def load_user(user_id):
 # Определяем дополнительные функции доступные в кондексте Jinja2
 @app.context_processor
 def utility_processor():
-    return dict(has_permission=has_permission)
+    return dict(has_permission=has_permission,base_unlocked=base_unlocked)
 
 
 @app.route('/')
@@ -104,7 +104,10 @@ def add_player():
     answer = None
     form = AddPlayer()
     form.city.choices = [(str(v), k) for k, v in getCities().items()]
-    if request.method == 'POST':
+    if not base_unlocked():
+        flash('База данных временно заблокирована для обновления. Попробуйте позже')
+        answer = redirect(url_for('index'))
+    elif request.method == 'POST':
         if not form.validate_on_submit():
             flash('validate_on_submit failed')
             flash(str(form.errors))
