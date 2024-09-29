@@ -290,7 +290,8 @@ class Player:
             #     birthdate = et.SubElement(info, 'birthdate')
             #     birthdate.text = self.birthdate.strftime("%Y-%m-%d")
             photo_url = f'foto/{self.id}.jpg'
-            if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
+            if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url) \
+                    and not os.path.isfile('src/static/' + photo_url):
                 photo = et.SubElement(info, 'photo')
                 photo.set('url', 'https://db.bridgesport.ru/' + photo_url)
             if self.quest:
@@ -429,7 +430,8 @@ class Player:
             result['rate'] = self.rate
             result['categories'] = self.categories
             photo_url = f'foto/{self.id}.jpg'
-            if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url):
+            if os.path.exists('src/static/' + photo_url) and os.path.isfile('src/static/' + photo_url) \
+                and not os.path.islink('src/static/' + photo_url):
                 result['photo'] = 'https://db.bridgesport.ru/' + photo_url
         return result
 
