@@ -457,7 +457,7 @@ class TournamentRecord:
     def xml(self) -> et.Element:
         record = et.Element('record')
         result = et.SubElement(record, 'result')
-        result.text = "{0}".format(self.result, '.2f')
+        result.text = "{0:.2f}".format(self.result)
 
         place = et.SubElement(record, 'place')
         place.text = self.place
