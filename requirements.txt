@@ -15,7 +15,7 @@ idna==2.9
 itsdangerous==1.1.0
 Jinja2==2.10.1
 lml==0.0.9
-lxml==4.3.3
+lxml==4.9.1
 MarkupSafe==1.1.1
 pyexcel==0.6.1
 pyexcel-io==0.5.20
