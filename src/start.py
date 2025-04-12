@@ -2,7 +2,6 @@ from flask import Flask, Response, render_template, url_for, jsonify, request, s
 # from flask_htmlmin import HTMLMIN
 import flask_excel as excel
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
-from flask_script import Manager
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON, getClubList, getStudents
@@ -24,7 +23,6 @@ app.config.from_object('settings')
 
 db_users.init_app(app)
 lm = LoginManager(app)
-manager = Manager(app)
 excel.init_excel(app)
 
 
@@ -32,7 +30,7 @@ excel.init_excel(app)
 
 
 # блок для работы flask_script
-@manager.command
+@app.cli.command
 def initdatabase():
     import src.users
     src.users.db.create_all()
@@ -284,4 +282,4 @@ def excel_list():
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 if __name__ == '__main__':
-    manager.run()
+    app.run()
