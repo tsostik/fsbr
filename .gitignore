@@ -12,6 +12,8 @@ src/src
 src/static/foto
 src/users.sqlite
 src/settings.py
+var/*
 tmp/*
 __pycache__
+pyvenv.cfg
 wsgi.py
