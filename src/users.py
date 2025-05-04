@@ -91,14 +91,16 @@ def get_flag(flagname: str) -> bool:
     if flag is not None:
         return flag.value
     else:
-        return false
+        return False
 
 
 def set_flag(name: str, value: bool):
-    flag=BaseStatus()
-    flag.flag=name
-    flag.value=value
-    db.session.add(flag)
+    flag = BaseStatus.query.filter_by(flag=name).first()
+    if flag is None:
+        flag = BaseStatus(flag=name, value=value)
+        db.session.add(flag)
+    else:
+        flag.value = value
     db.session.commit()
 
 

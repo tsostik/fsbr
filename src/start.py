@@ -8,7 +8,7 @@ from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON, 
 from src.rate import getFullList, getRate, getRateForecast, getExcelList
 from src.service import getRateTourns, getRazrChange, getClubStat
 from src.tournaments import getCities, getTournamentList, getTournamentXml, getFamiliesList
-from src.users import User, db as db_users, find_or_add_user, has_permission, base_unlocked
+from src.users import User, db as db_users, find_or_add_user, has_permission, base_unlocked, get_flag, set_flag
 
 from src.forms import AddPlayer
 from src.oauth import OAuthSignIn
@@ -42,7 +42,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# Определяем дополнительные функции доступные в кондексте Jinja2
+# Определяем дополнительные функции доступные в контексте Jinja2
 @app.context_processor
 def utility_processor():
     return dict(has_permission=has_permission,base_unlocked=base_unlocked)
@@ -279,6 +279,15 @@ def clubs():
 def excel_list():
     return excel.make_response_from_records(getExcelList(), 'xls', file_name='players')
 
+
+@app.route('/toggle_lock_state')
+@login_required
+def toggle_lock_state():
+    redirect_url = request.args['next'] if 'next' in request.args else url_for('index')
+    if(has_permission(current_user, "Admin")):
+        current_state = get_flag("locked")
+        set_flag("locked", not current_state)
+    return redirect(redirect_url)
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 if __name__ == '__main__':
