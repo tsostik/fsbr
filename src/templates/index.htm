@@ -6,9 +6,9 @@
 {% if has_permission(current_user, 'Admin') %}
 <br />
   {% if base_unlocked() %}
-    <a href="{{url_for('toggle_lock_state',next=request.path)}}"><button class="tool"><img id="lock-icon" width="24px" height="24px" src="{{url_for('static', filename='unlocked.png')}}"/></button></a>
+    <a href="{{url_for('toggle_lock_state',next=request.path)}}"><button class="tool"><img id="lock-icon" width="24px" height="24px" src="{{url_for('static', filename='unlocked.svg')}}"/></button></a>
   {% else %}
-    <a href="{{url_for('toggle_lock_state',next=request.path)}}"><button class="tool"><img id="lock-icon" width="24px" height="24px" src="{{url_for('static', filename='locked.png')}}"/></button></a>
+    <a href="{{url_for('toggle_lock_state',next=request.path)}}"><button class="tool"><img id="lock-icon" width="24px" height="24px" src="{{url_for('static', filename='locked.svg')}}"/></button></a>
   {% endif %}
 {% endif %}
 {% endblock %}
