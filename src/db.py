@@ -1,4 +1,6 @@
 import pymysql.cursors
+from pymysql.converters import escape_string
+from pymysql.connections import Connection
 from flask import current_app
 from src.interface import *
 from src.queries import Queries
@@ -20,17 +22,26 @@ def getCities() -> Dict[str, int]:
 
 class BaseIFace:
     def __init__(self):
-        self.conn = None
+        self._conn : Connection | None = None
 
     def __enter__(self):
         self.connectToDb()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.conn.close()
+        try:
+            self.conn.close()
+        finally:
+            self._conn = None
+
+    @property
+    def conn(self) -> Connection:
+        if self._conn is None:
+            raise RuntimeError("Используйте BaseIFace через with")
+        return self._conn
 
     def connectToDb(self):
-        self.conn = pymysql.connect(user=current_app.config['DB_USER'],
+        self._conn = pymysql.connect(user=current_app.config['DB_USER'],
                                     host=current_app.config['DB_HOST'],
                                     password=current_app.config['DB_PASSWORD'],
                                     db=current_app.config['DB_DB'])
@@ -198,8 +209,10 @@ class BaseIFace:
     def loadTournamentData(self, tid: int) -> Tournament:
         with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
             sql = Queries.select_tourn.format(tid)
-            if cursor.execute(sql):
-                tourn = Tournament(**cursor.fetchone())
+            cursor.execute(sql)
+            record = cursor.fetchone()
+            if record is not None:
+                tourn = Tournament(**record)
                 # Load nested tournaments
                 sql = "select tourn_id as id, name from tourn_header where parent = {0};".format(tourn.id)
                 cursor.execute(sql)
@@ -218,6 +231,8 @@ class BaseIFace:
                 sql = Queries.select_tourn_meta.format(id)
                 if cursor.execute(sql):
                     res = cursor.fetchone()
+                    if(res is None):
+                        break
                     result.append(res)
                     id = res['parent_id']
                 else:
@@ -305,7 +320,7 @@ class BaseIFace:
     def findPlayerByName(self, name: str):
         if len(name) >= 3:
             with self.conn.cursor(pymysql.cursors.Cursor) as cursor:
-                sql = Queries.select_find_player.format(pymysql.escape_string(name.strip()))
+                sql = Queries.select_find_player.format(escape_string(name.strip()))
                 cursor.execute(sql)
                 return cursor.fetchall()
 
@@ -464,13 +479,18 @@ class BaseIFace:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
                 cursor.execute(Queries.select_max_id)
                 record = cursor.fetchone()
+                if record is None:
+                    raise RuntimeError("Не удалось получить максимальный ID игрока")
                 (p, n) = (record['p'], record['n'])
                 pid = max(p or 0, n or 0)
                 ok = False
                 while not ok:
                     pid += 1
                     cursor.execute(Queries.is_id_available.format(pid))
-                    ok = True if cursor.fetchone()['ok'] else False
+                    record = cursor.fetchone()
+                    if record is None:
+                        raise RuntimeError("Не удалось проверить доступность ID игрока")
+                    ok = True if record['ok'] else False
                 cursor.execute(Queries.add_new_player,
                                (
                                    pid,

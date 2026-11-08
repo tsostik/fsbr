@@ -2,7 +2,7 @@ import lxml.etree as et
 import datetime
 import os
 from src.helper import Helper
-from typing import List, Optional
+from typing import Any, List, Optional
 from collections import OrderedDict
 
 
@@ -544,7 +544,7 @@ class Tournament:
         self.start = None
         self.end = None
         self.city = None
-        self.ancestors = None
+        self.ancestors : list[Any] | None = None
         self.family = None
         self.nested = []
         self.participants = []
@@ -642,7 +642,7 @@ class RateRecord:
         self.state = None
         self.quest = False
         self.mail = None
-        self.mbstat = None
+        self.mbstat : dict[str, int | None] | None = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if (self.firstname == 'Щ') or (self.firstname is None):
             self.firstname = ''
