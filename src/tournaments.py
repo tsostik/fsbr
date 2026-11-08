@@ -2,8 +2,8 @@ from src.db import BaseIFace
 import lxml.etree as et
 
 
-#XML представление одного турнира
 def getTournamentXml(tournament_id):
+    """XML представление одного турнира"""
     with BaseIFace() as base:
         tournament = base.loadTournamentData(tournament_id)
         if tournament.type == 1 or tournament.type == 5:
@@ -17,16 +17,17 @@ def getTournamentXml(tournament_id):
     return tournament.xml
 
 
-#Список всех турниров в базе
 def getTournamentList():
+    """Список всех турниров в базе"""
     with BaseIFace() as base:
         result = et.Element('tournament_list')
         for tourn in base.loadTournList():
             result.append(tourn.xmlShort)
     return result
 
-#Список существующих семей
+
 def getFamiliesList(family_id):
+    """Список существующих семей"""
     with BaseIFace() as base:
         result = et.Element('families')
         for family in base.loadFamilies(family_id):
