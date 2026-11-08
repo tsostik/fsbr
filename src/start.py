@@ -7,7 +7,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from src.players import addPlayer, findPlayer, getPlayerXml, getPlayerInfoJSON, getClubList, getStudents
 from src.rate import getFullList, getRate, getRateForecast, getExcelList
 from src.service import getRateTourns, getRazrChange, getClubStat
-from src.tournaments import getCities, getTournamentList, getTournamentXml, getFamiliesList
+from src.tournaments import getTournamentList, getTournamentXml, getFamiliesList
+from src.db import getCities
 from src.users import User, db as db_users, find_or_add_user, has_permission, base_unlocked, get_flag, set_flag
 
 from src.forms import AddPlayer
@@ -16,6 +17,7 @@ from src.oauth import OAuthSignIn
 import datetime
 import lxml.etree as et
 import time
+from typing import cast
 
 app = Flask(__name__)
 app.config.from_object('defaults')
@@ -65,7 +67,10 @@ def oauth_authorize(provider):
 
 @app.route('/callback/<provider>/')
 def oauth_callback(provider):
-    redirect_url = session.get('next') if 'next' in session else url_for('index')
+    redirect_url = cast(
+        str, 
+        session.get('next') if 'next' in session else url_for('index')
+        )
     if not current_user.is_anonymous:
         return redirect(redirect_url)
     oauth = OAuthSignIn.get_provider(provider)
@@ -88,7 +93,7 @@ def logout():
 
 @app.route('/players/', methods=['post', 'get'])
 @app.route('/players/<name>/')
-def find_player(name: str = None):
+def find_player(name: str | None = None):
     if request.form.get('name'):
         return redirect(url_for('find_player', name=request.form.get('name'), _method='GET'))
     players = findPlayer(name) if name else None
@@ -221,7 +226,7 @@ def fullList_xml():
 @app.route('/rate/xml/')
 @app.route('/rate/<rdate>/')
 @app.route('/rate/<rdate>/xml/')
-def rate_xml(rdate: str = None):
+def rate_xml(rdate: str | None = None):
     start_time = time.perf_counter()
     if rdate is None:
         dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
@@ -250,7 +255,7 @@ def rate_forecast_xml():
 @app.route('/misc/razrchange/xml/')
 @app.route('/misc/razrchange/<date>/')
 @app.route('/misc/razrchange/<date>/xml/')
-def razr_change(date: str = None):
+def razr_change(date: str | None  = None):
     start_time = time.perf_counter()
     if date is None:
         dt = datetime.date(datetime.date.today().year, datetime.date.today().month, 1)
@@ -277,14 +282,17 @@ def clubs():
 #Полная классификация excel
 @app.route('/misc/ListXL/')
 def excel_list():
-    return excel.make_response_from_records(getExcelList(), 'xls', file_name='players')
+    return cast( Response, 
+                excel.make_response_from_records(getExcelList(), 'xls', file_name='players')
+               )
 
 
 @app.route('/toggle_lock_state')
 @login_required
 def toggle_lock_state():
     redirect_url = request.args['next'] if 'next' in request.args else url_for('index')
-    if(has_permission(current_user, "Admin")):
+    user = cast(User, current_user)
+    if(has_permission(user, "Admin")):
         current_state = get_flag("locked")
         set_flag("locked", not current_state)
     return redirect(redirect_url)
