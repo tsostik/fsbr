@@ -13,7 +13,7 @@ class PlayingRecord:
         self.id = None
         self.date = None
         self.name = None
-        self.partner = None
+        self.partner: tuple[str, int | None] | list[Any] | None = None
         self.placel = None
         self.placeh = None
         self.pb = None
@@ -29,32 +29,35 @@ class PlayingRecord:
         :rtype: Bool
         """
         result = False
-        if self.champ_t == 3 and self.placeh <= 3:  # "Прочий" чемпионат, призовое место
-            result = True
-        elif self.champ_t <= 10:
-            pass
-        elif self.champ_t > 1000 and self.placeh <= 3:  # Региональный чемпионат, призовое место
-            result = True
-        elif (13 <= self.champ_t <= 14) and self.placeh <= 3: #ЖЧР и ЮЧР не набравшие 16 участников
-            result = True
-        elif (20 <= self.champ_t <= 29) and self.placeh <= 3:  # Малый чемпионат России, призовое место
-            result = True
-        elif self.champ_t == 31 and self.placeh <= 3:  # КЧР, места 1 - 5
-            result = True
-        elif (self.champ_t == 32 or self.champ_t == 33) and self.placeh <= 3:  # ПЧР или ПЧР-ИМП, места 1-10
-            result = True
-        elif (90 <= self.champ_t < 100) and self.placeh <= 3:  # Неквалифицируемые чемпионаты Европы и Мира
-            result = True
-        elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:
-            # Парный чемпионат Европы или Мира, места 1-10
-            result = True
-        elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:
-            # Командный чемпионат Европы или Мира, места 1-8
-            result = True
+        if self.champ_t is not None and self.placeh is not None:
+            if self.champ_t == 3 and self.placeh <= 3:  # "Прочий" чемпионат, призовое место
+                result = True
+            elif self.champ_t <= 10:
+                pass
+            elif self.champ_t > 1000 and self.placeh <= 3:  # Региональный чемпионат, призовое место
+                result = True
+            elif (13 <= self.champ_t <= 14) and self.placeh <= 3: #ЖЧР и ЮЧР не набравшие 16 участников
+                result = True
+            elif (20 <= self.champ_t <= 29) and self.placeh <= 3:  # Малый чемпионат России, призовое место
+                result = True
+            elif self.champ_t == 31 and self.placeh <= 3:  # КЧР, места 1 - 5
+                result = True
+            elif (self.champ_t == 32 or self.champ_t == 33) and self.placeh <= 3:  # ПЧР или ПЧР-ИМП, места 1-10
+                result = True
+            elif (90 <= self.champ_t < 100) and self.placeh <= 3:  # Неквалифицируемые чемпионаты Европы и Мира
+                result = True
+            elif (40 <= self.champ_t < 100) and self.type == 2 and self.placeh <= 10:
+                # Парный чемпионат Европы или Мира, места 1-10
+                result = True
+            elif (40 <= self.champ_t < 100) and self.type == 3 and self.placeh <= 8:
+                # Командный чемпионат Европы или Мира, места 1-8
+                result = True
         return result
 
     @property
     def xml(self) -> et.Element:
+        if self.date is None:
+            raise ValueError(f"У результата турнира {self.id} отсутствует дата")
         tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
         if self.achievement:
@@ -80,17 +83,18 @@ class PlayingRecord:
         partner = et.SubElement(tournament, 'partner')
         if self.partner is None:
             partner.text = ""
-        elif type(self.partner) is tuple:
+        elif isinstance(self.partner, tuple):
             player = et.SubElement(partner, 'player')
             player.text = self.partner[0]
             player.set('id', str(self.partner[1]))
         else:
             team = et.SubElement(partner, 'team')
             team.set('name', str(self.partner[0]))
-            for pl in self.partner[1]:
-                player = et.SubElement(team, 'player')
-                player.text = pl[0]
-                player.set('id', str(pl[1]))
+            if(self.partner[1] is not None and len(self.partner[1]) > 0): #paranoia
+                for pl in self.partner[1]:
+                    player = et.SubElement(team, 'player')
+                    player.text = pl[0]
+                    player.set('id', str(pl[1]))
         return tournament
 
 
@@ -169,14 +173,15 @@ class Player:
         self.firstname = None
         self.fathername = None
         self.sex = None
-        self.birthdate = None
+        self.birthdate : datetime.date | None = None
         self.city = None
+        self.mail : str | None = None
         self.club_id = None
         self.razr = None
         self.razr_temp = False
         self.pb = None
         self.rate = None
-        self.mb = None
+        self.mb : int = 0
         self.emb = None
         self.positions = []
         self.directing = []
@@ -209,7 +214,7 @@ class Player:
         if self.sex == 0:
             self.categories.append('W')
         try:
-            if hasattr(self.birthdate, "year") :
+            if isinstance(self.birthdate, datetime.date):
                 age = datetime.date.today().year - self.birthdate.year
                 if age < 26:
                     self.categories.append('J')
@@ -344,7 +349,7 @@ class Player:
             if not isDead or self.best_rank:
                 bestpos = et.SubElement(rstat, 'BestRateRank')
                 bestrate = et.SubElement(rstat, 'BestRate')
-                if self.best_rank:
+                if self.best_rank and isinstance(self.best_rank_dt, datetime.date) and self.best_rate and isinstance(self.best_rate_dt, datetime.date):
                     bestpos.set('date', self.best_rank_dt.strftime("%Y-%m-%d"))
                     bestpos.text = str(self.best_rank)
                     bestrate.set('date', self.best_rate_dt.strftime("%Y-%m-%d"))
@@ -375,7 +380,10 @@ class Player:
                 results = et.SubElement(player_record, 'results')
                 for rec in self.results:
                     if rec.placeh > 0:
-                        results.append(rec.xml)
+                        if isinstance(rec.date, datetime.date):
+                            results.append(rec.xml)
+                        else:
+                            pass #TODO logging warning about missing date
             if self.club_stat:
                 pass
                 clubStat = et.SubElement(player_record, 'clubMbStatistics')
@@ -539,12 +547,12 @@ class Tournament:
 
     def __init__(self, **kwargs):
         self.id = None
-        self.type = None
+        self.type : int | None = None
         self.name = None
         self.start = None
         self.end = None
         self.city = None
-        self.ancestors : list[Any] | None = None
+        self.ancestors : list[Any] = []
         self.family = None
         self.nested = []
         self.participants = []
@@ -560,7 +568,7 @@ class Tournament:
     def xml(self) -> et.Element:
         tournament = et.Element('tournament')
         tournament.set('id', str(self.id))
-        if self.id:
+        if self.id and self.type:
             tournament.set('type', self.types[self.type])
             if self.family:
                 tournament.set('family', str(self.family))

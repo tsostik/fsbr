@@ -474,7 +474,7 @@ class BaseIFace:
                 result.add(record['club_id'], record['club_name'], record['maxdate'])
         return result
 
-    def addNewPlayer(self, player: Player, author: int, note: str) -> int:
+    def addNewPlayer(self, player: Player, author: int, note: str | None) -> int:
         try:
             with self.conn.cursor(pymysql.cursors.DictCursor) as cursor:
                 cursor.execute(Queries.select_max_id)
@@ -503,7 +503,7 @@ class BaseIFace:
                                    player.is_sputnik,
                                    player.sputnik_first,
                                    author,
-                                   note
+                                   note if note is not None else ""
                                ))
                 self.conn.commit()
         finally:
