@@ -1,5 +1,6 @@
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 db = SQLAlchemy()
 
@@ -10,9 +11,9 @@ user_roles = db.Table('user_roles',
 
 class Role(db.Model):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(16), unique=True)
-    description = db.Column(db.String(64), nullable=True, unique=False)
+    id: Mapped[int] = mapped_column(db.Integer(), primary_key=True)
+    name: Mapped[str | None] = mapped_column(db.String(16), nullable=True, unique=True)
+    description: Mapped[str | None] = mapped_column(db.String(64), nullable=True, unique=False)
 
     def __repr__(self):
         return str(self.name)+"<"+str(self.id)+">"
@@ -28,14 +29,14 @@ class Role(db.Model):
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.Integer(), primary_key=True)
-    facebook_id = db.Column(db.String(64), nullable=True, unique=False)
-    google_id = db.Column(db.String(64), nullable=True, unique=False)
-    twitter_id = db.Column(db.String(64), nullable=True, unique=False)
-    nickname = db.Column(db.String(64), nullable=True)
-    email = db.Column(db.String(64), nullable=True)
-    roles = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy='dynamic'))
-    fsbr = db.Column(db.Integer(), nullable=True)
+    id: Mapped[int] = mapped_column(db.Integer(), primary_key=True)
+    facebook_id: Mapped[str | None] = mapped_column(db.String(64), nullable=True, unique=False)
+    google_id: Mapped[str | None] = mapped_column(db.String(64), nullable=True, unique=False)
+    twitter_id: Mapped[str | None] = mapped_column(db.String(64), nullable=True, unique=False)
+    nickname: Mapped[str | None] = mapped_column(db.String(64), nullable=True)
+    email: Mapped[str | None] = mapped_column(db.String(64), nullable=True)
+    roles: Mapped[list[Role]] = relationship('Role', secondary=user_roles, backref=db.backref('users', lazy='dynamic'))
+    fsbr: Mapped[int | None] = mapped_column(db.Integer(), nullable=True)
 
     @property
     def display_name(self) -> str:
@@ -55,6 +56,10 @@ class BaseStatus(db.Model):
     __tablename__='flags'
     flag = db.Column(db.String(64), primary_key=True)
     value = db.Column(db.Boolean, nullable=False, unique=False)
+
+    def __init__(self, flag: str, value: bool):
+        self.flag = flag
+        self.value = value
 
 
 def find_or_add_user(userinfo):
