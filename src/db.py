@@ -67,9 +67,9 @@ class BaseIFace:
                             lifetime=record['lifetime'],
                             rate=record['rate'],
                             rate_rank=record['place'],
-                            pb=record['pb'],
-                            mb=record['mb'],
-                            emb=record['emb'])
+                            pb=int(record['pb']),
+                            mb=int(record['mb']),
+                            emb=int(record['emb']))
                 if 'state' in record:
                     pl.state = record['state']
                 sql=Queries.is_questionary_done.format(plid)
@@ -198,9 +198,9 @@ class BaseIFace:
                             razr=razr,
                             razr_temp=razr_temp,
                             rate=record['rate'],
-                            pb=record['pb'],
-                            mb=record['mb'],
-                            emb=record['emb'])
+                            pb=int(record['pb']),
+                            mb=int(record['mb']),
+                            emb=int(record['emb']))
                 if 'state' in record:
                     pl.state = record['state']
                 result.append(pl)
@@ -359,9 +359,9 @@ class BaseIFace:
                                     razr=razr,
                                     razr_temp=razr_temp,
                                     rate=record['rate'],
-                                    pb=record['pb'],
-                                    mb=record['mb'],
-                                    emb=record['emb'])
+                                    pb=int(record['pb']),
+                                    mb=int(record['mb']),
+                                    emb=int(record['emb']))
                 if 'state' in record:
                     player.state = record['state']
                 if 'qid' in record:
@@ -395,9 +395,9 @@ class BaseIFace:
                                     razr=razr,
                                     razr_temp=razr_temp,
                                     rate=record['rate'],
-                                    pb=record['pb'],
-                                    mb=record['mb'],
-                                    emb=record['emb'])
+                                    pb=int(record['pb']),
+                                    mb=int(record['mb']),
+                                    emb=int(record['emb']))
                 result.append(player)
         return result
 

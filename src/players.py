@@ -34,7 +34,7 @@ def addPlayer(player: AddPlayer) -> int:
         new_player = Player(firstname=player.firstname.data,
                             lastname=player.lastname.data,
                             fathername=player.fathername.data,
-                            sex=player.sex.data,
+                            sex=int(player.sex.data),
                             birthdate=player.birthdate.data,
                             city=player.city.data,
                             is_sputnik=player.is_sputnik.data,

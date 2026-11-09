@@ -1,3 +1,5 @@
+from math import nan
+
 import lxml.etree as et
 import datetime
 import os
@@ -10,16 +12,16 @@ class PlayingRecord:
     allowed_fields = ['id', 'date', 'name', 'partner', 'placel', 'placeh', 'pb', 'ro', 'mb', 'champ_t', 'type']
 
     def __init__(self, **kwargs):
-        self.id = None
-        self.date = None
-        self.name = None
+        self.id : int = -1
+        self.date : datetime.date | None = None
+        self.name : str = ""
         self.partner: tuple[str, int | None] | list[Any] | None = None
-        self.placel = None
-        self.placeh = None
-        self.pb = None
-        self.ro = None
-        self.mb = None
-        self.champ_t = None
+        self.placel : int | None = None
+        self.placeh : int | None  = None
+        self.pb : int | None  = None
+        self.ro : int | None  = None
+        self.mb : int | None  = None
+        self.champ_t : int = 0
         self.type = 0
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
@@ -103,10 +105,10 @@ class OtherPos:
     allowed_fields = ['id', 'year', 'event', 'title']
 
     def __init__(self, **kwargs):
-        self.id = None
-        self.year = None
-        self.event = None
-        self.title = None
+        self.id : int = -1
+        self.year : int | None = None
+        self.event : str | None = None
+        self.title : str | None = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
@@ -124,10 +126,10 @@ class TdPos:
     allowed_fields = ['id', 'tournament', 'date', 'title']
 
     def __init__(self, **kwargs):
-        self.id = None
-        self.tournament = None
-        self.date = None
-        self.title = None
+        self.id : int | None = None
+        self.tournament : str | None = None
+        self.date : datetime.date | None = None
+        self.title : str | None = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
@@ -145,10 +147,10 @@ class AdminPos:
     allowed_fields = ['since', 'till', 'committee', 'title']
 
     def __init__(self, **kwargs):
-        self.since = None
-        self.till = None
-        self.comitee = None
-        self.title = None
+        self.since: int | None = None
+        self.till: int | None = None
+        self.comitee: str | None = None
+        self.title: str | None = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
@@ -168,41 +170,41 @@ class Player:
                       'best_rate', 'best_rate_dt', 'best_rank', 'best_rank_dt', 'is_sputnik', 'sputnik_first' ]
 
     def __init__(self, **kwargs):
-        self.id = None
-        self.lastname = None
-        self.firstname = None
-        self.fathername = None
-        self.sex = None
+        self.id : int | None = None
+        self.lastname : str | None = None
+        self.firstname : str | None = None
+        self.fathername : str | None = None
+        self.sex : int | None = None
         self.birthdate : datetime.date | None = None
-        self.city = None
+        self.city : str | None = None
         self.mail : str | None = None
-        self.club_id = None
-        self.razr = None
-        self.razr_temp = False
-        self.pb = None
-        self.rate = None
+        self.club_id : int | None = None
+        self.razr : float | None = None
+        self.razr_temp : bool = False
+        self.pb : int | None = None
+        self.rate : int = 0
         self.mb : int = 0
-        self.emb = None
-        self.positions = []
-        self.directing = []
-        self.results = []
-        self.other = []
-        self.wbf_id = None
-        self.acbl_id = None
-        self.gambler_nick = None
-        self.bbo_nick = None
-        self.rate_rank = None
-        self.best_rate = None
-        self.best_rate_dt = None
-        self.best_rank = None
-        self.best_rank_dt = None
+        self.emb : int = 0
+        self.positions : list[AdminPos] = []
+        self.directing : list[TdPos] = []
+        self.results : list[PlayingRecord] = []
+        self.other : list[OtherPos] = []
+        self.wbf_id : int | None = None
+        self.acbl_id : int | None = None
+        self.gambler_nick : list[str] | None = None
+        self.bbo_nick : str | None = None
+        self.rate_rank : int | None = None
+        self.best_rate : int | None = None
+        self.best_rate_dt : datetime.date | None = None
+        self.best_rank : int | None = None
+        self.best_rank_dt : datetime.date | None = None
         self.is_sputnik: bool = False
-        self.sputnik_first = None
-        self.categories = ['O']
-        self.state = None
-        self.club_stat = []
+        self.sputnik_first : datetime.date | None = None
+        self.categories : list[str] = ['O']
+        self.state : int = 7 # state 7 means technical record not representing a player
+        self.club_stat : list = []
         self.quest: bool = False
-        self.lifetime = None
+        self.lifetime : str | None = None
 
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if self.firstname == 'Щ' or self.firstname is None:
@@ -379,7 +381,7 @@ class Player:
             if self.results:
                 results = et.SubElement(player_record, 'results')
                 for rec in self.results:
-                    if rec.placeh > 0:
+                    if rec.placeh is not None and rec.placeh > 0:
                         if isinstance(rec.date, datetime.date):
                             results.append(rec.xml)
                         else:
@@ -396,7 +398,7 @@ class Player:
                         ' ' + str(rec['date'].year)
                     statName = et.SubElement(statRecord, 'name')
                     statName.text = str(rec['name'])
-                    if(rec['mb']):
+                    if (rec['mb']):
                         statMB = et.SubElement(statRecord, 'mb')
                         statMB.text = str(rec['mb'])
                     if (rec['emb']):
@@ -449,12 +451,12 @@ class TournamentRecord:
     allowed_fields = ['placeh', 'placel', 'result', 'pb', 'ro', 'mb']
 
     def __init__(self, **kwargs):
-        self.placeh = None
-        self.placel = None
-        self.result = None
-        self.pb = None
-        self.ro = None
-        self.mb = None
+        self.placeh : int | None = None
+        self.placel : int | None = None
+        self.result : float | None = None
+        self.pb : float | None = None
+        self.ro : float | None = None
+        self.mb : float | None = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     @property
@@ -546,19 +548,19 @@ class Tournament:
     types = {1: "Individual", 2: "Pair", 3: "Team", 4: "Session", 5: "Club", 6: "Festival"}
 
     def __init__(self, **kwargs):
-        self.id = None
+        self.id : int = 0
         self.type : int | None = None
-        self.name = None
-        self.start = None
-        self.end = None
-        self.city = None
+        self.name : str | None = None
+        self.start : datetime.date | None = None
+        self.end : datetime.date | None = None
+        self.city : str | None = None
         self.ancestors : list[Any] = []
-        self.family = None
-        self.nested = []
-        self.participants = []
+        self.family : int | None = None
+        self.nested : list[Tournament]= []
+        self.participants : list[TournamentRecord] = []
         self.is_show: Optional[bool] = None
-        self.prev = None
-        self.next = None
+        self.prev : int | None = None
+        self.next : int | None = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
     def addParticipant(self, participant: TournamentRecord):
@@ -631,32 +633,32 @@ class RateRecord:
                       'razr', 'razr_temp', 'pb', 'rate', 'mb', 'emb', 'state']
 
     def __init__(self, **kwargs):
-        self.id = None
-        self.lastname = ''
-        self.firstname = ''
-        self.fathername = ''
-        self.city = ''
-        self.club_id = None
-        self.razr = None
-        self.razr_temp = False
-        self.pb = 0
-        self.rate = 0
-        self.mb = 0
-        self.emb = 0
-        self.categories = ['O']
-        self.isW = False
-        self.isJ = False
-        self.isS = False
-        self.state = None
-        self.quest = False
-        self.mail = None
+        self.id : int = 0
+        self.lastname : str = ''
+        self.firstname : str = ''
+        self.fathername : str | None = None
+        self.city : str | None = None 
+        self.club_id : int | None = None
+        self.razr : float = nan
+        self.razr_temp : bool = False
+        self.pb : int = 0
+        self.rate : int = 0
+        self.mb : int = 0
+        self.emb : int = 0
+        self.categories : list[str] = ['O']
+        self.isW : bool = False
+        self.isJ : bool = False
+        self.isS : bool = False
+        self.state : int | None = None
+        self.quest : bool = False
+        self.mail : str | None = None
         self.mbstat : dict[str, int | None] | None = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
         if (self.firstname == 'Щ') or (self.firstname is None):
             self.firstname = ''
         if (self.fathername == 'Щ') or (self.firstname is None):
             self.fathername = ''
-        self.shortname = '{0} {1}.{2}.'.format(self.lastname,
+        self.shortname : str = '{0} {1}.{2}.'.format(self.lastname,
                                               (self.firstname[0] if  self.firstname else ''),
                                               (self.fathername[0] if self.fathername else ''))
         if 'sex' in kwargs and kwargs['sex'] == 0:
