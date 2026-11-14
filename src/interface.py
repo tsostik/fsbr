@@ -149,7 +149,7 @@ class AdminPos:
     def __init__(self, **kwargs):
         self.since: int | None = None
         self.till: int | None = None
-        self.comitee: str | None = None
+        self.committee: str | None = None
         self.title: str | None = None
         self.__dict__.update((k, v) for k, v in kwargs.items() if k in self.allowed_fields)
 
@@ -522,7 +522,10 @@ class TournamentRecordTeam(TournamentRecord):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.team = kwargs['team']
-        self.players = kwargs['players']
+        if 'players' in kwargs: #paranoia
+            self.players = kwargs['players']
+        else:
+            self.players = []
         if 'players_nq' in kwargs:
             self.players_nq = kwargs['players_nq']
         else:
