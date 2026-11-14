@@ -29,7 +29,7 @@ def getPlayerInfoJSON(player_id: int):
     return player.info
 
 
-def addPlayer(player: AddPlayer) -> int:
+def addPlayer(player: AddPlayer, author: int | None = None) -> int:
     try:
         new_player = Player(firstname=player.firstname.data,
                             lastname=player.lastname.data,
@@ -41,7 +41,7 @@ def addPlayer(player: AddPlayer) -> int:
                             sputnik_first=player.sputnik_first.data)
 
         with BaseIFace() as base:
-            plid = base.addNewPlayer(new_player, current_user.fsbr, player.notes.data)
+            plid = base.addNewPlayer(new_player, current_user.fsbr if author is None else author, player.notes.data)
     except Exception:
         plid = -1
     return plid

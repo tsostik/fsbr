@@ -13,6 +13,7 @@ from src.users import User, db as db_users, find_or_add_user, has_permission, ba
 
 from src.forms import AddPlayer
 from src.oauth import OAuthSignIn
+from src.player_api import player_api
 
 import datetime
 import lxml.etree as et
@@ -22,6 +23,7 @@ from typing import cast
 app = Flask(__name__)
 app.config.from_object('defaults')
 app.config.from_object('settings')
+app.register_blueprint(player_api)
 
 db_users.init_app(app)
 lm = LoginManager(app)
