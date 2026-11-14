@@ -1,8 +1,10 @@
 blinker==1.9.0
 certifi==2025.1.31
+cffi==2.1.1
 chardet==3.0.4
 click==8.1.8
 colorama==0.4.6
+cryptography==50.0.2
 Flask==3.1.0
 Flask-Compress==1.4.0
 Flask-Excel==0.0.7
@@ -20,6 +22,7 @@ Jinja2==3.1.6
 lml==0.0.9
 lxml==5.3.2
 MarkupSafe==3.0.2
+pycparser==3.11
 pyexcel==0.6.1
 pyexcel-io==0.5.20
 pyexcel-webio==0.1.4
