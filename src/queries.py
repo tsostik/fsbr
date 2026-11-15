@@ -116,7 +116,7 @@ class Queries:
 
     select_admin = "select year_s as since, year_f as till, position as title, comitee as committee " \
                    "from admin_pos where player_id = {0} " \
-                   "order by if(till=0, 9999, till) desc, since desc"
+                   "order by if(till is null or till=0, 9999, till) desc, since desc"
 
     select_directing = "select tds.tourn_id as id, tourn_header.name as tournament, " \
                        "tour_date as date, position as title " \
