@@ -12,18 +12,27 @@ from src.users import base_unlocked
 player_api = Blueprint('player_api', __name__)
 
 
-@player_api.post('/api/players/')
-def create_player():
+def check_authorization(request):
     token = current_app.config.get('PLAYER_API_TOKEN', '')
     if not token:
-        return jsonify(error='api_not_configured'), 503
+        raise Exception('API not configured')
 
     scheme, _, supplied = request.headers.get('Authorization', '').partition(' ')
-    if scheme.lower() != 'bearer' or not hmac.compare_digest(
-            supplied.encode('utf-8'), token.encode('utf-8')):
-        response = jsonify(error='unauthorized')
-        response.headers['WWW-Authenticate'] = 'Bearer'
-        return response, 401
+    return scheme.lower() == 'bearer' and hmac.compare_digest(
+            supplied.encode('utf-8'), token.encode('utf-8')
+    )
+
+
+
+@player_api.post('/api/addplayer/')
+def create_player():
+    try:
+        if not check_authorization(request):
+            response = jsonify(error='unauthorized')
+            response.headers['WWW-Authenticate'] = 'Bearer'
+            return response, 401
+    except Exception as e:
+        return jsonify(error=str(e)), 503
 
     if not request.is_json:
         return jsonify(error='json_required'), 415

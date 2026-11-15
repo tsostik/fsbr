@@ -1,9 +1,9 @@
 # Добавление игрока с другого сервера
 
-`POST /api/players/` принимает JSON без браузерной сессии и возвращает
+`POST /api/addplayer/` принимает JSON без браузерной сессии и возвращает
 `201 {"id": 123}`. Используется тот же механизм добавления, что в `/players/add/`.
 
-В окружении процесса Flask (systemd, Docker или настройки хостинга) задайте:
+В источнике параметров приложения Flask:
 
 ```text
 PLAYER_API_TOKEN=<случайный секрет>
@@ -25,7 +25,7 @@ import os
 import requests
 
 response = requests.post(
-    'https://your-host/api/players/',
+    'https://your-host/api/addplayer/',
     headers={'Authorization': 'Bearer ' + os.environ['PLAYER_API_TOKEN']},
     json={
         'author_id': 42,
@@ -48,7 +48,7 @@ player_id = response.json()['id']
 
 ```bash
 curl --fail-with-body --max-time 15 \
-  'https://your-host/api/players/' \
+  'https://your-host/api/addplayer/' \
   --header "Authorization: Bearer ${PLAYER_API_TOKEN}" \
   --header 'Content-Type: application/json' \
   --data-raw '{
@@ -76,7 +76,7 @@ curl --fail-with-body --max-time 15 \
 
 ```powershell
 curl.exe --fail-with-body --max-time 15 `
-  'https://your-host/api/players/' `
+  'https://your-host/api/addplayer/' `
   --header "Authorization: Bearer $env:PLAYER_API_TOKEN" `
   --header 'Content-Type: application/json' `
   --data-binary '@player.json'
@@ -87,7 +87,7 @@ curl.exe --fail-with-body --max-time 15 `
 Обязательны `author_id`, `lastname`, `firstname`, `city`. Остальные поля необязательны:
 `fathername`, `sex` (строка `1` — мужчина, `0` — женщина, по умолчанию `1`),
 `birthdate`, `is_sputnik` (JSON boolean, по умолчанию false), `sputnik_first`,
-`notes` (до 255 символов). Даты — `YYYY/MM/DD` или пустая строка.
+`notes` (до 233 символов). Даты — `YYYY/MM/DD` или пустая строка.
 `author_id` передаётся целым JSON-числом, `is_sputnik` — boolean, остальные поля —
 строками. Коды городов из текущей формы:
 20 — Екатеринбург, 16 — Москва, 22 — Новосибирск, 29 — Пермь,

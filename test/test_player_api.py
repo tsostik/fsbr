@@ -8,6 +8,8 @@ from src import player_api
 from src.players import addPlayer
 
 
+api_endpoint_addplayer = '/api/addplayer/'
+
 @pytest.fixture
 def api(monkeypatch):
     app = Flask(__name__)
@@ -21,7 +23,7 @@ def api(monkeypatch):
 
 
 def post(client, payload=None, token='test-secret', **kwargs):
-    return client.post('/api/players/', json=payload, headers={'Authorization': 'Bearer ' + token}, **kwargs)
+    return client.post(api_endpoint_addplayer, json=payload, headers={'Authorization': 'Bearer ' + token}, **kwargs)
 
 
 def valid():
@@ -88,8 +90,8 @@ def test_author_from_request(api):
 def test_bad_body(api):
     _, client, create, _ = api
     headers = {'Authorization': 'Bearer test-secret'}
-    assert client.post('/api/players/', data='x', headers=headers).status_code == 415
-    assert client.post('/api/players/', data='{', content_type='application/json', headers=headers).status_code == 400
+    assert client.post(api_endpoint_addplayer, data='x', headers=headers).status_code == 415
+    assert client.post(api_endpoint_addplayer, data='{', content_type='application/json', headers=headers).status_code == 400
     assert post(client, []).status_code == 400
     create.assert_not_called()
 
@@ -98,7 +100,7 @@ def test_bad_body(api):
 def test_json_encoding(api, encoding, status):
     _, client, create, unlocked = api
     response = client.post(
-        '/api/players/',
+        api_endpoint_addplayer,
         data=json.dumps(valid(), ensure_ascii=False).encode(encoding),
         content_type='application/json',
         headers={'Authorization': 'Bearer test-secret'},
