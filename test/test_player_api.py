@@ -8,6 +8,95 @@ from src import player_api
 from src.players import addPlayer
 
 
+api_endpoint_findplayer = '/api/findplayer/'
+
+@pytest.fixture
+def find_api(api, monkeypatch):
+    _, client, _, _ = api
+    find = Mock(return_value=[(10, 'Smith', 'John', None, 'City', 0),
+                              (20, 'Smith', 'Jane', None, 'City', 1)])
+    monkeypatch.setattr(player_api, 'findPlayer', find)
+    return client, find
+
+
+def test_find_player(find_api):
+    client, find = find_api
+    response = client.get(api_endpoint_findplayer, query_string={'surname': ' Smith '})
+    assert response.status_code == 201
+    assert response.json == [list(row) for row in find.return_value]
+    find.assert_called_once_with('Smith')
+
+
+@pytest.mark.parametrize('params', [{}, {'surname': ''}, {'surname': '   '}])
+def test_find_player_empty_name(find_api, params):
+    client, find = find_api
+    response = client.get(api_endpoint_findplayer, query_string=params)
+    assert response.status_code == 404
+    assert response.json is None
+    find.assert_not_called()
+
+
+@pytest.mark.parametrize('result', [None, [], ()])
+def test_find_player_not_found(find_api, result):
+    client, find = find_api
+    find.return_value = result
+    response = client.get(api_endpoint_findplayer, query_string={'surname': 'Nobody'})
+    assert response.status_code == 404
+    assert response.json == (None if result is None else [])
+    find.assert_called_once_with('Nobody')
+
+
+def test_find_player_new_only(find_api):
+    client, find = find_api
+    response = client.get(api_endpoint_findplayer, query_string={'surname': 'Smith', 'newonly': '1'})
+    assert response.status_code == 201
+    assert response.json == [list(find.return_value[1])]
+
+
+def test_find_player_new_only_without_new_players(find_api):
+    client, find = find_api
+    find.return_value = [find.return_value[0]]
+    response = client.get(api_endpoint_findplayer, query_string={'surname': 'Smith', 'newonly': '1'})
+    assert response.status_code == 404
+    assert response.json == []
+
+
+def test_find_player_path_and_post(find_api):
+    client, find = find_api
+    response = client.get('/api/findplayer/Smith', query_string={'newonly': 'true'})
+    assert response.status_code == 201
+    assert response.json == [list(find.return_value[1])]
+    response = client.post(api_endpoint_findplayer, json={'surname': ' Smith ', 'newonly': True})
+    assert response.status_code == 201
+    assert response.json == [list(find.return_value[1])]
+    assert find.call_args_list == [(("Smith",),), (("Smith",),)]
+
+
+@pytest.mark.parametrize('value', ['false', '0'])
+def test_find_player_false_filter(find_api, value):
+    client, find = find_api
+    response = client.get(api_endpoint_findplayer, query_string={'surname': 'Smith', 'newonly': value})
+    assert response.json == [list(row) for row in find.return_value]
+
+
+@pytest.mark.parametrize('url', ['/api/findplayer/Smith?newonly',
+                                  '/api/findplayer/?surname=Smith&newonly'])
+def test_find_player_flag_without_value(find_api, url):
+    client, find = find_api
+    response = client.get(url)
+    assert response.status_code == 201
+    assert response.json == [list(find.return_value[1])]
+
+
+def test_find_player_post_errors(find_api):
+    client, find = find_api
+    assert client.post(api_endpoint_findplayer, data='x').status_code == 415
+    assert client.post(api_endpoint_findplayer, json=[]).status_code == 400
+    assert client.post(api_endpoint_findplayer, json={'surname': []}).status_code == 400
+    assert client.post(api_endpoint_findplayer, json={'surname': 'Smith', 'newonly': 'invalid'}).status_code == 400
+    find.assert_not_called()
+
+
 api_endpoint_addplayer = '/api/addplayer/'
 
 @pytest.fixture

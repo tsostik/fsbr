@@ -108,7 +108,8 @@ class Queries:
         "union all " \
         "(select new_id as plid, firstname, lastname, surname, city_name, 1 as is_new " \
         "from fsbr_aux.new_players left join cities using(city_id) " \
-        "where firstname like '%{0}%') " \
+        "where firstname like '%{0}%' " \
+        "and not exists (select 1 from fsbr.players p where p.player_id = new_players.new_id)) " \
         "order by is_new, firstname, lastname, surname, city_name;"
 
     select_external_ids = "select wbf as wbf_id, acbl as acbl_id, gambler as gambler_nick, bbo as bbo_nick " \
